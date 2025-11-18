@@ -60,6 +60,16 @@ function auth(req, res, next) {
   }
 }
 
+// Sadece admin için middleware
+function requireAdmin(req, res, next) {
+  if (!req.user || req.user.role !== "admin") {
+    return res
+      .status(403)
+      .json({ error: "Bu işlem için admin yetkisi gerekiyor." });
+  }
+  next();
+}
+
 // Login endpoint
 app.post("/api/login", (req, res) => {
   const { username, password } = req.body || {};
@@ -81,6 +91,87 @@ app.post("/api/login", (req, res) => {
 // Örnek korumalı endpoint
 app.get("/api/secure-test", auth, (req, res) => {
   res.json({ message: "Token geçerli", user: req.user });
+});
+
+// =============== KULLANICI CRUD ENDPOINTLERİ ===============
+
+// Tüm kullanıcıları listele (sadece admin)
+app.get("/api/users", auth, requireAdmin, (req, res) => {
+  // Şifre hash'lerini göndermiyoruz
+  const safeUsers = users.map((u) => ({
+    id: u.id,
+    username: u.username,
+    role: u.role,
+  }));
+  res.json(safeUsers);
+});
+
+// Yeni kullanıcı oluştur (sadece admin)
+app.post("/api/users", auth, requireAdmin, (req, res) => {
+  const { username, password, role } = req.body || {};
+
+  if (!username || !password || !role) {
+    return res
+      .status(400)
+      .json({ error: "username, password ve role zorunludur." });
+  }
+
+  const existing = users.find((u) => u.username === username);
+  if (existing) {
+    return res
+      .status(400)
+      .json({ error: "Bu kullanıcı adı zaten kullanılıyor." });
+  }
+
+  const newId = users.length > 0 ? Math.max(...users.map((u) => u.id)) + 1 : 1;
+
+  const newUser = {
+    id: newId,
+    username,
+    password: bcrypt.hashSync(password, 10),
+    role,
+  };
+
+  users.push(newUser);
+
+  res.status(201).json({
+    id: newUser.id,
+    username: newUser.username,
+    role: newUser.role,
+  });
+});
+
+// Kullanıcı güncelle (rol ve/veya şifre) – sadece admin
+app.put("/api/users/:id", auth, requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  const { role, password } = req.body || {};
+
+  const user = users.find((u) => u.id === id);
+  if (!user) {
+    return res.status(404).json({ error: "Kullanıcı bulunamadı." });
+  }
+
+  if (role) {
+    user.role = role;
+  }
+  if (password) {
+    user.password = bcrypt.hashSync(password, 10);
+  }
+
+  res.json({ id: user.id, username: user.username, role: user.role });
+});
+
+// Kullanıcı sil – sadece admin
+app.delete("/api/users/:id", auth, requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  const index = users.findIndex((u) => u.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({ error: "Kullanıcı bulunamadı." });
+  }
+
+  users.splice(index, 1);
+  res.json({ success: true });
 });
 
 // ================== DEMO VERİ & FONKSİYONLAR ==================
