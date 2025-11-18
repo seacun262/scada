@@ -105,8 +105,8 @@
       align-items: center;
       transition: 0.2s;
       font-size: 13px;
-	  color: #ffffff;          /* 🔹 link rengini beyaz yap */
-      text-decoration: none;   /* 🔹 alt çizgiyi kaldır */
+      color: #ffffff;
+      text-decoration: none;
     }
 
     .site-item:hover {
@@ -563,8 +563,6 @@
     <div id="site-list"></div>
   </aside>
 
-
-
   <main class="content">
     <div class="breadcrumbs">Lokasyon: <span id="breadcrumb-site">–</span></div>
     <div class="site-title" id="site-title">Lütfen bir lokasyon seçin</div>
@@ -686,7 +684,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-  const API_BASE = "https://scada-d498.onrender.com/api/login";
+  /* === ÖNEMLİ: API BASE ARTIK /api === */
+  const API_BASE = "/api";
   let viewMode = "day"; // day | week | month
 
   // Tema
@@ -745,9 +744,29 @@
     if (state.selectedSite) loadDailySummary();
   });
 
+  /* === ÖNEMLİ: Token’lı fetch === */
   async function fetchJSON(url) {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("HTTP " + res.status);
+    const token = localStorage.getItem("token");
+    const headers = {};
+
+    if (token) {
+      headers["Authorization"] = "Bearer " + token;
+    }
+
+    const res = await fetch(url, { headers });
+
+    if (res.status === 401 || res.status === 403) {
+      // Token bozuk veya yok → temizle, login'e dön
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      window.location.href = "login.html";
+      throw new Error("Yetkisiz");
+    }
+
+    if (!res.ok) {
+      throw new Error("HTTP " + res.status);
+    }
+
     return res.json();
   }
 
@@ -1147,24 +1166,24 @@
     if (state.selectedSite) loadRealtime();
   }, 10000);
 </script>
+
 <script>
-(function() {
-  const role = localStorage.getItem("role");
+  (function() {
+    const role = localStorage.getItem("role");
 
-  // Login yoksa login sayfasına at
-  if (!role) {
-    window.location.href = "login.html";
-    return;
-  }
+    // Login yoksa login sayfasına at
+    if (!role) {
+      window.location.href = "login.html";
+      return;
+    }
 
-  // Kullanıcı Yönetimi linki sadece admin görsün
-  const menuUsers = document.getElementById("menu-users");
-  if (menuUsers && role !== "admin") {
-    menuUsers.style.display = "none";
-  }
-})();
+    // Kullanıcı Yönetimi linki sadece admin görsün
+    const menuUsers = document.getElementById("menu-users");
+    if (menuUsers && role !== "admin") {
+      menuUsers.style.display = "none";
+    }
+  })();
 </script>
-
 
 </body>
 </html>
