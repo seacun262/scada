@@ -2,15 +2,15 @@ const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const path = require("path"); // ⬅️ FRONTEND için eklendi
+const path = require("path");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 // ================== FRONTEND SERVİSİ ==================
-// backend klasörüne göre ../frontend yolunu bul
-const FRONTEND_DIR = path.join(__dirname, "../frontend");
+// Artık frontend klasörü backend'in içinde: backend/frontend
+const FRONTEND_DIR = path.join(__dirname, "frontend");
 
 // frontend klasöründeki tüm statik dosyaları (html, css, js) servis et
 app.use(express.static(FRONTEND_DIR));
@@ -340,7 +340,7 @@ app.get("/api/sites/:id/hourly/export", (req, res) => {
 
 // ================== SERVER ==================
 
-const PORT = process.env.PORT || 4000; // Render kendi PORT'unu buraya yazar
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log("DEMO Backend API port:", PORT);
 });

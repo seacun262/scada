@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<title>Fatura Simülasyonu - Tuzla Belediyesi Enerji Yönetimi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background: #eef3f9;
+        color: #003a70;
+    }
+
+    header {
+        background: #0059a9;
+        color: white;
+        padding: 12px 20px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .container {
+        max-width: 900px;
+        margin: 20px auto;
+        background: white;
+        padding: 22px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 16px;
+    }
+
+    .col {
+        flex: 1;
+    }
+
+    label {
+        font-size: 14px;
+        display: block;
+        margin-bottom: 4px;
+        color: #0059a9;
+        font-weight: 600;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        background: #0059a9;
+        color: white;
+        font-size: 16px;
+        margin-top: 10px;
+        cursor: pointer;
+        border-radius: 6px;
+        font-weight: bold;
+    }
+
+    button:hover {
+        background: #0a6bd3;
+    }
+
+    .result-box {
+        margin-top: 20px;
+        padding: 15px;
+        background: #f1f5f9;
+        border-radius: 8px;
+        border-left: 5px solid #0059a9;
+    }
+
+    .result-line {
+        font-size: 15px;
+        padding: 4px 0;
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .result-total {
+        font-size: 20px;
+        font-weight: bold;
+        color: #0a2a66;
+        padding-top: 10px;
+    }
+</style>
+</head>
+
+<body>
+
+<header>Fatura Simülasyonu – Tuzla Belediyesi Enerji Yönetimi</header>
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <label>Abone Grubu</label>
+            <select id="tarife">
+                <option value="kamu">Kamu Kurumu</option>
+                <option value="ticarethane">Ticarethane</option>
+                <option value="mesken">Mesken</option>
+                <option value="sanayi">Sanayi</option>
+            </select>
+        </div>
+        <div class="col">
+            <label>Dönem Aktif Enerji (kWh)</label>
+            <input type="number" id="aktif" placeholder="Ör: 12500">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <label>Endüktif Reaktif (kVArh)</label>
+            <input type="number" id="ind" placeholder="Ör: 2200">
+        </div>
+        <div class="col">
+            <label>Kapasitif Reaktif (kVArh)</label>
+            <input type="number" id="cap" placeholder="Ör: 300">
+        </div>
+    </div>
+
+    <button onclick="hesapla()">HESAPLA</button>
+
+    <div id="sonuc" class="result-box" style="display:none;"></div>
+</div>
+
+<script>
+function hesapla() {
+    const tarife = document.getElementById("tarife").value;
+    const aktif = Number(document.getElementById("aktif").value);
+    const ind = Number(document.getElementById("ind").value);
+    const cap = Number(document.getElementById("cap").value);
+
+    if (!aktif) return alert("Aktif enerji girin!");
+
+    // ---- EPDK tarifeleri (örnek rakamlar - güncel denenmiş modeller) ----
+    const tarifeler = {
+        kamu: {
+            enerji: 1.75,
+            dagitim: 0.91
+        },
+        ticarethane: {
+            enerji: 2.15,
+            dagitim: 1.02
+        },
+        mesken: {
+            enerji: 1.12,
+            dagitim: 0.76
+        },
+        sanayi: {
+            enerji: 1.69,
+            dagitim: 0.89
+        }
+    };
+
+    const t = tarifeler[tarife];
+
+    // ---- Reaktif ceza kontrolü ----
+    const indLimit = aktif * 0.33;
+    const capLimit = aktif * 0.20;
+
+    let indCezasi = 0;
+    let capCezasi = 0;
+
+    if (ind > indLimit) {
+        indCezasi = (ind - indLimit) * t.enerji * 2.0;
+    }
+    if (cap > capLimit) {
+        capCezasi = (cap - capLimit) * t.enerji * 2.0;
+    }
+
+    // ---- Ana bedeller ----
+    const enerjiBedeli = aktif * t.enerji;
+    const dagitimBedeli = aktif * t.dagitim;
+
+    // sabit bedel
+    const sayaçOkuma = 22.90;
+
+    const araToplam =
+        enerjiBedeli +
+        dagitimBedeli +
+        indCezasi +
+        capCezasi +
+        sayaçOkuma;
+
+    const kdv = araToplam * 0.20;
+    const toplam = araToplam + kdv;
+
+    const sonuc = document.getElementById("sonuc");
+    sonuc.style.display = "block";
+
+    sonuc.innerHTML = `
+        <div class="result-line"><span>Enerji Bedeli:</span> <strong>${enerjiBedeli.toFixed(2)} TL</strong></div>
+        <div class="result-line"><span>Dağıtım Bedeli:</span> <strong>${dagitimBedeli.toFixed(2)} TL</strong></div>
+        <div class="result-line"><span>Reaktif Endüktif Cezası:</span> <strong>${indCezasi.toFixed(2)} TL</strong></div>
+        <div class="result-line"><span>Reaktif Kapasitif Cezası:</span> <strong>${capCezasi.toFixed(2)} TL</strong></div>
+        <div class="result-line"><span>Sayaç Okuma:</span> <strong>${sayaçOkuma.toFixed(2)} TL</strong></div>
+        <div class="result-line"><span>KDV (%20):</span> <strong>${kdv.toFixed(2)} TL</strong></div>
+
+        <div class="result-total">TOPLAM FATURA: ${toplam.toFixed(2)} TL</div>
+    `;
+}
+</script>
+
+</body>
+</html>

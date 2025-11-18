@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Kompanzasyon Analizi – Tuzla Belediyesi SCADA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background: #eef3f9;
+        color: #003a70;
+    }
+
+    header {
+        background: #0059a9;
+        padding: 12px 20px;
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .container {
+        max-width: 1100px;
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    .panel {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 22px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .panel-title {
+        font-size: 18px;
+        margin-bottom: 10px;
+        font-weight: bold;
+        color: #003a70;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    select, input {
+        padding: 10px;
+        font-size: 14px;
+        width: 100%;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+    }
+
+    .alert {
+        padding: 12px;
+        border-radius: 6px;
+        margin-top: 10px;
+        font-weight: bold;
+        font-size: 15px;
+    }
+
+    .alert-red { background:#fee2e2; border-left:5px solid #b91c1c; color:#7f1d1d; }
+    .alert-yellow { background:#fef9c3; border-left:5px solid #ca8a04; color:#854d0e; }
+    .alert-green { background:#dcfce7; border-left:5px solid #15803d; color:#166534; }
+
+    .gauge-wrapper {
+        width: 200px;
+        margin: auto;
+        position: relative;
+    }
+
+    #cosGaugeText {
+        position: absolute;
+        top: 58%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 28px;
+        font-weight: bold;
+        color: #003a70;
+    }
+</style>
+</head>
+
+<body>
+
+<header>Kompanzasyon Analizi – Tuzla Belediyesi SCADA</header>
+
+<div class="container">
+
+    <!-- SEÇİMLER -->
+    <div class="panel">
+        <div class="panel-title">Seçenekler</div>
+
+        <div class="row">
+            <div style="flex:1;">
+                <label>Lokasyon</label>
+                <select id="siteSelect">
+                    <option value="SITE_01">Tuzla Ana Bina</option>
+                    <option value="SITE_02">Sosyal Tesis</option>
+                    <option value="SITE_03">Garaj / Atölye</option>
+                    <option value="SITE_04">Ay Yıldız Kültür Merkezi</option>
+                </select>
+            </div>
+
+            <div style="flex:1;">
+                <label>Periyot</label>
+                <select id="periodSelect">
+                    <option value="day">Günlük</option>
+                    <option value="week">Haftalık</option>
+                    <option value="month">Aylık</option>
+                </select>
+            </div>
+        </div>
+
+        <button onclick="loadCompensation()" style="
+            width:100%;padding:10px;background:#0059a9;color:white;
+            font-size:16px;border-radius:8px;border:none;cursor:pointer;">GÖSTER</button>
+    </div>
+
+
+
+    <!-- COSPHI GAUGE -->
+    <div class="panel">
+        <div class="panel-title">Anlık Cosφ Durumu</div>
+        <div class="gauge-wrapper">
+            <canvas id="cosGauge" width="200" height="120"></canvas>
+            <div id="cosGaugeText">0.98</div>
+        </div>
+
+        <div id="cosAlert"></div>
+    </div>
+
+
+
+    <!-- Qind – Qcap Grafiği -->
+    <div class="panel">
+        <div class="panel-title">Reaktif Enerji Analizi (kVArh)</div>
+        <canvas id="reactiveChart" height="110"></canvas>
+    </div>
+
+
+
+    <!-- Cosφ Trend Grafiği -->
+    <div class="panel">
+        <div class="panel-title">Cosφ Trend</div>
+        <canvas id="cosTrendChart" height="110"></canvas>
+    </div>
+
+</div>
+
+<script>
+
+// DEMO veri üretimi (gerçek veri bağlayınca burayı kaldıracağız)
+function generateCompensation(period) {
+    let points = 24;
+    if (period === "week") points = 7;
+    if (period === "month") points = 30;
+
+    const labels = [];
+    const qind = [];
+    const qcap = [];
+    const cosphi = [];
+
+    for (let i = 0; i < points; i++) {
+        labels.push(period === "day" ? `${i}:00` : `Gün ${i+1}`);
+        qind.push(30 + Math.random() * 40);   // 30–70
+        qcap.push(8 + Math.random() * 15);    // 8–23
+        cosphi.push(0.92 + Math.random() * 0.06); // 0.92–0.98
+    }
+
+    const liveCos = cosphi[cosphi.length - 1];
+
+    return { labels, qind, qcap, cosphi, liveCos };
+}
+
+
+
+// --- GAUGE ÇİZİMİ ---
+function drawCosGauge(value) {
+    const canvas = document.getElementById("cosGauge");
+    const ctx = canvas.getContext("2d");
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    const start = Math.PI;
+    const end = 2 * Math.PI;
+    const mid = start + (value - 0.7) * (end - start) / (1.0 - 0.7);
+
+    // Arka gri yay
+    ctx.lineWidth = 18;
+    ctx.strokeStyle = "#cbd5e1";
+    ctx.beginPath();
+    ctx.arc(100,100,70,start,end);
+    ctx.stroke();
+
+    // Renkli bölüm
+    ctx.lineWidth = 18;
+    ctx.strokeStyle =
+        value < 0.85 ? "#dc2626" :
+        value < 0.95 ? "#f59e0b" :
+                       "#16a34a";
+    ctx.beginPath();
+    ctx.arc(100,100,70,start,mid);
+    ctx.stroke();
+
+    document.getElementById("cosGaugeText").textContent = value.toFixed(3);
+}
+
+
+
+// --- GRAFİKLER ---
+let reactiveChart = null;
+let cosTrendChart = null;
+
+function loadCompensation() {
+    const site = document.getElementById("siteSelect").value;
+    const period = document.getElementById("periodSelect").value;
+
+    const data = generateCompensation(period);
+
+    // Gauge
+    drawCosGauge(data.liveCos);
+
+    // Cos alert
+    const alertBox = document.getElementById("cosAlert");
+    alertBox.innerHTML = "";
+
+    if (data.liveCos < 0.85) {
+        alertBox.innerHTML = `<div class="alert alert-red">⚠ Çok Düşük Cosφ – Endüktif Ceza Olabilir!</div>`;
+    } else if (data.liveCos < 0.95) {
+        alertBox.innerHTML = `<div class="alert alert-yellow">⚠ Orta Cosφ – Ceza Riski Var</div>`;
+    } else {
+        alertBox.innerHTML = `<div class="alert alert-green">✔ Cosφ Uygun – Sorun Yok</div>`;
+    }
+
+    // Reaktif grafik
+    const rctx = document.getElementById("reactiveChart").getContext("2d");
+    if (reactiveChart) reactiveChart.destroy();
+
+    reactiveChart = new Chart(rctx, {
+        type: "line",
+        data: {
+            labels: data.labels,
+            datasets: [
+                {
+                    label: "Endüktif (Qind)",
+                    data: data.qind,
+                    borderColor: "#16a34a",
+                    backgroundColor: "#86efac55",
+                    tension: 0.3
+                },
+                {
+                    label: "Kapasitif (Qcap)",
+                    data: data.qcap,
+                    borderColor: "#1d4ed8",
+                    backgroundColor: "#93c5fd55",
+                    tension: 0.3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // Cos trend grafik
+    const cctx = document.getElementById("cosTrendChart").getContext("2d");
+    if (cosTrendChart) cosTrendChart.destroy();
+
+    cosTrendChart = new Chart(cctx, {
+        type: "line",
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: "Cosφ",
+                data: data.cosphi,
+                borderColor: "#0059a9",
+                backgroundColor: "#93c5fd88",
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { min: 0.7, max: 1.0 }
+            }
+        }
+    });
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Alarm & Event Log – Tuzla Belediyesi SCADA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #eef3f9;
+        color: #003a70;
+    }
+
+    header {
+        background: #0059a9;
+        padding: 12px 20px;
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .container {
+        max-width: 1100px;
+        margin: 20px auto;
+        padding: 10px;
+    }
+
+    .panel {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .panel-title {
+        font-size: 18px;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #003a70;
+    }
+
+    .filters {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+    }
+
+    .filters input,
+    .filters select {
+        padding: 8px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+    }
+
+    th, td {
+        padding: 8px;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 14px;
+    }
+
+    th {
+        background: #f1f5f9;
+    }
+
+    td.level-cell {
+        font-weight: bold;
+        text-align: center;
+        color: white;
+        border-radius: 4px;
+    }
+
+    .CRITICAL { background: #dc2626; }
+    .WARNING { background: #facc15; color:#000; }
+    .INFO { background: #3b82f6; }
+
+/* Hover */
+    tbody tr:hover {
+        background: #f8fafc;
+    }
+
+</style>
+</head>
+
+<body>
+
+<header>Alarm & Event Log – Tuzla Belediyesi SCADA</header>
+
+<div class="container">
+
+    <div class="panel">
+
+        <div class="panel-title">Filtreler</div>
+
+        <div class="filters">
+            <select id="siteFilter">
+                <option value="">Tüm Lokasyonlar</option>
+                <option value="SITE_01">SITE_01 – Ana Bina</option>
+                <option value="SITE_02">SITE_02 – Sosyal Tesis</option>
+                <option value="SITE_03">SITE_03 – Garaj</option>
+                <option value="SITE_04">SITE_04 – Kültür Merkezi</option>
+            </select>
+
+            <select id="levelFilter">
+                <option value="">Tüm Seviyeler</option>
+                <option value="CRITICAL">Critical</option>
+                <option value="WARNING">Warning</option>
+                <option value="INFO">Info</option>
+            </select>
+
+            <input type="date" id="dateFrom">
+            <input type="date" id="dateTo">
+
+            <input type="text" id="searchText" placeholder="Kelime ile ara...">
+        </div>
+
+        <div class="panel-title">Alarm Listesi</div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Tarih</th>
+                    <th>Saat</th>
+                    <th>Lokasyon</th>
+                    <th>Seviye</th>
+                    <th>Mesaj</th>
+                </tr>
+            </thead>
+            <tbody id="alarmTableBody"></tbody>
+        </table>
+
+    </div>
+</div>
+
+
+<script>
+async function loadAlarms() {
+    const res = await fetch("http://localhost:4000/api/alarms");
+    let alarms = await res.json();
+
+    const site = document.getElementById("siteFilter").value;
+    const level = document.getElementById("levelFilter").value;
+    const search = document.getElementById("searchText").value.toLowerCase();
+    const from = document.getElementById("dateFrom").value;
+    const to = document.getElementById("dateTo").value;
+
+    alarms = alarms.filter(a => {
+        if (site && a.site !== site) return false;
+        if (level && a.level !== level) return false;
+        if (search && !a.message.toLowerCase().includes(search)) return false;
+
+        const d = a.timestamp.slice(0,10);
+        if (from && d < from) return false;
+        if (to && d > to) return false;
+
+        return true;
+    });
+
+    const tbody = document.getElementById("alarmTableBody");
+    tbody.innerHTML = "";
+
+    alarms.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    alarms.forEach(a => {
+        const tr = document.createElement("tr");
+
+        const dt = new Date(a.timestamp);
+        const date = dt.toLocaleDateString("tr-TR");
+        const time = dt.toLocaleTimeString("tr-TR");
+
+        tr.innerHTML = `
+            <td>${date}</td>
+            <td>${time}</td>
+            <td>${a.site}</td>
+            <td class="level-cell ${a.level}">${a.level}</td>
+            <td>${a.message}</td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+}
+
+document.querySelectorAll(".filters input, .filters select")
+    .forEach(el => el.addEventListener("change", loadAlarms));
+
+document.getElementById("searchText")
+    .addEventListener("input", loadAlarms);
+
+loadAlarms();
+</script>
+
+</body>
+</html>

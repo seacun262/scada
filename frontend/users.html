@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Kullanıcı Yönetimi – Tuzla Belediyesi SCADA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #eef3f9;
+  color: #003a70;
+}
+
+header {
+  background: #0059a9;
+  padding: 12px 20px;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.container {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 10px;
+}
+
+.panel {
+  background: white;
+  padding: 18px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.panel-title {
+  font-size: 18px;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #003a70;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th, td {
+  padding: 8px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+}
+
+th {
+  background: #f1f5f9;
+}
+
+.role-badge {
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.role-admin { background:#fee2e2; color:#b91c1c; }
+.role-operator { background:#e0f2fe; color:#0369a1; }
+.role-viewer { background:#dcfce7; color:#166534; }
+
+button {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn-danger { background:#dc2626; color:white; }
+.btn-save { background:#16a34a; color:white; }
+.btn-small { font-size:12px; padding:4px 8px; }
+
+input, select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+#status {
+  font-size: 13px;
+  margin-top: 6px;
+}
+</style>
+</head>
+
+<body>
+
+<header>Kullanıcı Yönetimi – Tuzla Belediyesi SCADA</header>
+
+<div class="container">
+
+  <div class="panel">
+    <div class="panel-title">Yeni Kullanıcı Ekle</div>
+    <div>
+      <label>Kullanıcı Adı</label>
+      <input id="new-username" placeholder="örn. elektrik.operator" />
+      <label>Şifre</label>
+      <input id="new-password" type="password" placeholder="örn. 1234" />
+      <label>Rol</label>
+      <select id="new-role">
+        <option value="admin">admin</option>
+        <option value="operator">operator</option>
+        <option value="viewer">viewer</option>
+      </select>
+      <button class="btn-save" onclick="createUser()">Kullanıcı Oluştur</button>
+      <div id="status"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Kullanıcı Listesi</div>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Kullanıcı Adı</th>
+          <th>Rol</th>
+          <th>Şifre Değiştir</th>
+          <th>İşlem</th>
+        </tr>
+      </thead>
+      <tbody id="userTableBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const API_BASE = "http://localhost:4000/api";
+
+function getAuthHeaders() {
+  const token = localStorage.getItem("token");
+  return {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer " + token
+  };
+}
+
+async function checkAccess() {
+  const role = localStorage.getItem("role");
+  if (!role) {
+    location.href = "login.html";
+    return false;
+  }
+  if (role !== "admin") {
+    alert("Bu sayfaya sadece admin kullanıcılar erişebilir.");
+    location.href = "index.html";
+    return false;
+  }
+  return true;
+}
+
+async function loadUsers() {
+  if (!(await checkAccess())) return;
+
+  try {
+    const res = await fetch(API_BASE + "/users", {
+      headers: getAuthHeaders()
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      document.getElementById("status").textContent =
+        data.error || "Kullanıcılar alınamadı.";
+      return;
+    }
+    renderUserTable(data);
+  } catch (e) {
+    console.error(e);
+    document.getElementById("status").textContent = "Sunucu hatası.";
+  }
+}
+
+function renderUserTable(users) {
+  const tbody = document.getElementById("userTableBody");
+  tbody.innerHTML = "";
+
+  users.forEach(u => {
+    const tr = document.createElement("tr");
+
+    const roleClass =
+      u.role === "admin" ? "role-admin" :
+      u.role === "operator" ? "role-operator" :
+      "role-viewer";
+
+    tr.innerHTML = `
+      <td>${u.id}</td>
+      <td>${u.username}</td>
+      <td>
+        <select data-id="${u.id}" class="role-select">
+          <option value="admin" ${u.role==="admin"?"selected":""}>admin</option>
+          <option value="operator" ${u.role==="operator"?"selected":""}>operator</option>
+          <option value="viewer" ${u.role==="viewer"?"selected":""}>viewer</option>
+        </select>
+      </td>
+      <td>
+        <input type="password" placeholder="Yeni şifre" data-id="${u.id}" class="pwd-input" />
+      </td>
+      <td>
+        <button class="btn-save btn-small" onclick="saveUser(${u.id})">Kaydet</button>
+        <button class="btn-danger btn-small" onclick="deleteUser(${u.id})">Sil</button>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+async function createUser() {
+  if (!(await checkAccess())) return;
+
+  const username = document.getElementById("new-username").value.trim();
+  const password = document.getElementById("new-password").value.trim();
+  const role = document.getElementById("new-role").value;
+  const statusEl = document.getElementById("status");
+
+  if (!username || !password) {
+    statusEl.textContent = "Kullanıcı adı ve şifre zorunlu.";
+    return;
+  }
+
+  try {
+    const res = await fetch(API_BASE + "/users", {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ username, password, role })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      statusEl.textContent = data.error || "Kullanıcı oluşturulamadı.";
+      return;
+    }
+
+    statusEl.textContent = "Kullanıcı oluşturuldu.";
+    document.getElementById("new-username").value = "";
+    document.getElementById("new-password").value = "";
+    loadUsers();
+  } catch (e) {
+    console.error(e);
+    statusEl.textContent = "Sunucu hatası.";
+  }
+}
+
+async function saveUser(id) {
+  if (!(await checkAccess())) return;
+
+  const statusEl = document.getElementById("status");
+
+  const roleSelect = document.querySelector(`select.role-select[data-id="${id}"]`);
+  const pwdInput = document.querySelector(`input.pwd-input[data-id="${id}"]`);
+
+  const role = roleSelect.value;
+  const password = pwdInput.value.trim();
+
+  const body = { role };
+  if (password) body.password = password;
+
+  try {
+    const res = await fetch(API_BASE + "/users/" + id, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      statusEl.textContent = data.error || "Güncelleme başarısız.";
+      return;
+    }
+    statusEl.textContent = "Kullanıcı güncellendi.";
+    pwdInput.value = "";
+    loadUsers();
+  } catch (e) {
+    console.error(e);
+    statusEl.textContent = "Sunucu hatası.";
+  }
+}
+
+async function deleteUser(id) {
+  if (!(await checkAccess())) return;
+
+  if (!confirm("Bu kullanıcıyı silmek istediğinize emin misiniz?")) return;
+
+  const statusEl = document.getElementById("status");
+  try {
+    const res = await fetch(API_BASE + "/users/" + id, {
+      method: "DELETE",
+      headers: getAuthHeaders()
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      statusEl.textContent = data.error || "Silme başarısız.";
+      return;
+    }
+    statusEl.textContent = "Kullanıcı silindi.";
+    loadUsers();
+  } catch (e) {
+    console.error(e);
+    statusEl.textContent = "Sunucu hatası.";
+  }
+}
+
+// SAYFA YÜKLENİNCE
+loadUsers();
+</script>
+
+</body>
+</html>

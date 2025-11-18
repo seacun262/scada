@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tuzla Belediyesi Enerji İzleme SCADA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    /* ================== GENEL ================== */
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f4f7fb;
+      color: #003a70;
+    }
+
+    /* ================== HEADER ================== */
+    header {
+      background: #0059a9;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header .logo {
+      height: 42px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    header .controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    header .controls label {
+      font-size: 14px;
+    }
+
+    header input[type="date"],
+    header select {
+      padding: 5px 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    #theme-toggle {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff22;
+      color: #f9fafb;
+      cursor: pointer;
+      font-size: 12px;
+      margin-right: 6px;
+    }
+
+    /* ================== LAYOUT ================== */
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      height: calc(100vh - 70px);
+    }
+
+    /* ================== SOL MENU ================== */
+    .sidebar {
+      background: #003a70;
+      color: white;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 16px;
+      color: #ffffff;
+    }
+
+    .site-item {
+      background: #0059a9;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: 0.2s;
+      font-size: 13px;
+	  color: #ffffff;          /* 🔹 link rengini beyaz yap */
+      text-decoration: none;   /* 🔹 alt çizgiyi kaldır */
+    }
+
+    .site-item:hover {
+      background: #0072d0;
+    }
+
+    .site-item.active {
+      background: #66b7f1;
+      color: #003a70;
+      font-weight: bold;
+    }
+
+    .site-item span.code {
+      font-weight: 600;
+    }
+
+    .site-item span.status {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .status-online {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-offline {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    /* ================== ANA İÇERİK ================== */
+    .content {
+      padding: 20px;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .content::before {
+      content: "";
+      position: absolute;
+      inset: 40px 40px 40px 40px;
+      background-image: url("tuzla-logo.png");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 300px 300px;
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .content > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .breadcrumbs {
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+
+    .site-title {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 18px;
+      color: #003a70;
+    }
+
+    /* ================== KARTLAR ================== */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 14px;
+      border-radius: 10px;
+      border-left: 5px solid #66b7f1;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+
+    .card h3 {
+      font-size: 13px;
+      margin: 0;
+      color: #0059a9;
+    }
+
+    .card .value {
+      font-size: 22px;
+      font-weight: bold;
+      margin-top: 5px;
+      color: #003a70;
+    }
+
+    .card .sub {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    /* ================== PANEL ================== */
+    .panel {
+      background: white;
+      padding: 14px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #003a70;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-title small {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    /* ================== KADEME LED GRID ================== */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .step {
+      text-align: center;
+      padding: 8px;
+      background: #f0f7ff;
+      border-radius: 8px;
+      border: 1px solid #c3ddf5;
+    }
+
+    .step .label {
+      font-size: 11px;
+      margin-top: 4px;
+      color: #003a70;
+      font-weight: bold;
+    }
+
+    .led {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid #1e3a8a;
+    }
+
+    .led.off {
+      background: #1e293b;
+      border-color: #475569;
+    }
+
+    .led.on {
+      background: #22c55e;
+      border-color: #15803d;
+      box-shadow: 0 0 6px rgba(34,197,94,0.9);
+    }
+
+    /* ================== TABLO ================== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 6px 4px;
+      text-align: right;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+
+    th {
+      background: #f9fafb;
+      font-weight: 600;
+    }
+
+    tbody tr:hover {
+      background: #f3f4f6;
+    }
+
+    .no-data {
+      padding: 10px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    /* ================== BUTONLAR ================== */
+    .btn-secondary {
+      font-size: 12px;
+      padding: 4px 10px;
+      margin-left: 6px;
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      background: #eff6ff;
+      color: #1e3a8a;
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+      background: #dbeafe;
+    }
+
+    /* ====== Aylık karşılaştırma (donut kartlar) ====== */
+    .month-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .month-card {
+      flex: 1 1 220px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      border-radius: 10px;
+      background: #f9fafb;
+    }
+
+    body.dark .month-card {
+      background: #020617;
+    }
+
+    .month-gauge-wrapper {
+      position: relative;
+      width: 90px;
+      height: 90px;
+    }
+
+    .month-gauge-wrapper canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    .month-percent {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    body.dark .month-percent {
+      color: #e5e7eb;
+    }
+
+    .month-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .month-label {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .month-kwh {
+      font-size: 13px;
+      color: #1e3a8a;
+    }
+
+    .month-cost {
+      font-size: 12px;
+      color: #4b5563;
+    }
+
+    /* ================== DARK MODE ================== */
+    body.dark {
+      background: #020617;
+      color: #e5e7eb;
+    }
+
+    body.dark header {
+      background: #020617;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+    }
+
+    body.dark .sidebar {
+      background: #020617;
+    }
+
+    body.dark .site-item {
+      background: #0f172a;
+    }
+
+    body.dark .site-item:hover {
+      background: #1e293b;
+    }
+
+    body.dark .site-item.active {
+      background: #1d4ed8;
+      color: #e5e7eb;
+    }
+
+    body.dark .content {
+      background: radial-gradient(circle at top, #0f172a 0, #020617 60%);
+    }
+
+    body.dark .panel,
+    body.dark .card {
+      background: #020617;
+      border-color: #1f2937;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.7);
+    }
+
+    body.dark .card h3,
+    body.dark .panel-title,
+    body.dark .site-title {
+      color: #e5e7eb;
+    }
+
+    body.dark .step {
+      background: #020617;
+      border-color: #1d4ed8;
+    }
+
+    body.dark .step .label {
+      color: #e5e7eb;
+    }
+
+    body.dark table {
+      color: #e5e7eb;
+    }
+
+    body.dark th {
+      background: #020617;
+    }
+
+    body.dark td,
+    body.dark th {
+      border-bottom-color: #1f2937;
+    }
+
+    body.dark .no-data {
+      color: #9ca3af;
+    }
+
+    body.dark #theme-toggle {
+      border-color: #1e293b;
+      background: #0f172a;
+    }
+
+    body.dark .btn-secondary {
+      border-color: #1e293b;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+
+    /* ================== MOBİL ================== */
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      .sidebar {
+        height: auto;
+        display: flex;
+        overflow-x: auto;
+      }
+      .sidebar h2 {
+        display: none;
+      }
+      #site-list {
+        display: flex;
+        gap: 8px;
+      }
+      .site-item {
+        min-width: 180px;
+      }
+      .content {
+        height: auto;
+      }
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-left">
+    <img src="tuzla-logo.png" class="logo" alt="Tuzla Belediyesi" />
+    <h1>Tuzla Belediyesi Enerji İzleme SCADA</h1>
+  </div>
+  <div class="controls">
+    <button id="theme-toggle" type="button">🌙 Gece Modu</button>
+
+    <select id="view-mode">
+      <option value="day">Günlük</option>
+      <option value="week">Haftalık</option>
+      <option value="month">Aylık</option>
+    </select>
+
+    <label for="date">Tarih:</label>
+    <input id="date" type="date" />
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h2>Menü</h2>
+
+    <!-- Genel menü -->
+    <a id="menu-dashboard" href="index.html" class="site-item" style="margin-bottom:6px; display:block;">
+      <span class="code">DASH</span>
+      <span style="flex:1;margin-left:6px;">Ana Ekran</span>
+    </a>
+
+    <a id="menu-alarms" href="alarmlar.html" class="site-item" style="margin-bottom:6px; display:block;">
+      <span class="code">ALR</span>
+      <span style="flex:1;margin-left:6px;">Alarmlar</span>
+    </a>
+
+    <a id="menu-komp" href="kompanzasyon.html" class="site-item" style="margin-bottom:6px; display:block;">
+      <span class="code">KMP</span>
+      <span style="flex:1;margin-left:6px;">Kompanzasyon</span>
+    </a>
+
+    <a id="menu-fatura" href="fatura.html" class="site-item" style="margin-bottom:10px; display:block;">
+      <span class="code">FTR</span>
+      <span style="flex:1;margin-left:6px;">Fatura Simülasyonu</span>
+    </a>
+
+    <!-- Sadece admin -->
+    <a id="menu-users" href="users.html" class="site-item" style="margin-bottom:10px; display:block;">
+      <span class="code">USR</span>
+      <span style="flex:1;margin-left:6px;">Kullanıcı Yönetimi</span>
+    </a>
+
+    <h2 style="margin-top:14px;">Lokasyonlar</h2>
+    <div id="site-list"></div>
+  </aside>
+
+
+
+  <main class="content">
+    <div class="breadcrumbs">Lokasyon: <span id="breadcrumb-site">–</span></div>
+    <div class="site-title" id="site-title">Lütfen bir lokasyon seçin</div>
+
+    <!-- KARTLAR -->
+    <section class="cards">
+      <div class="card">
+        <h3>Cosφ</h3>
+        <div class="value" id="card-cosphi">–</div>
+        <div class="sub">Toplam güç katsayısı</div>
+      </div>
+      <div class="card">
+        <h3>Aktif Güç</h3>
+        <div class="value" id="card-power">–</div>
+        <div class="sub">kW</div>
+      </div>
+      <div class="card">
+        <h3>Sayaç Değeri</h3>
+        <div class="value" id="card-kwh">–</div>
+        <div class="sub">Aktif Enerji (kWh)</div>
+      </div>
+      <div class="card">
+        <h3>Seçili Periyot Tüketimi</h3>
+        <div class="value" id="card-daily">–</div>
+        <div class="sub">Gün / hafta / ay toplam kWh</div>
+      </div>
+      <div class="card">
+        <h3>Endüktif Oran</h3>
+        <div class="value" id="card-ind-ratio">–</div>
+        <div class="sub">% (Q<sub>ind</sub> / P)</div>
+      </div>
+      <div class="card">
+        <h3>Kapasitif Oran</h3>
+        <div class="value" id="card-cap-ratio">–</div>
+        <div class="sub">% (Q<sub>cap</sub> / P)</div>
+      </div>
+    </section>
+
+    <!-- Günlük/Haftalık/Aylık grafik -->
+    <section class="panel">
+      <div class="panel-title">
+        <span>Tüketim Grafiği</span>
+        <small id="chart-caption"></small>
+      </div>
+      <div style="height:240px;">
+        <canvas id="dailyChart"></canvas>
+      </div>
+    </section>
+
+    <!-- Aylık karşılaştırma (donut kartlar) -->
+    <section class="panel">
+      <div class="panel-title">
+        <span>Aylık Karşılaştırma</span>
+        <small>Önceki / Mevcut ay toplam kWh ve maliyet</small>
+      </div>
+      <div class="month-summary">
+        <div class="month-card">
+          <div class="month-gauge-wrapper">
+            <canvas id="monthPrevCanvas"></canvas>
+            <div class="month-percent" id="month-prev-percent">–%</div>
+          </div>
+          <div class="month-info">
+            <div class="month-label" id="month-prev-label">Önceki Ay</div>
+            <div class="month-kwh"   id="month-prev-kwh">– kWh</div>
+            <div class="month-cost"  id="month-prev-cost">– ₺</div>
+          </div>
+        </div>
+
+        <div class="month-card">
+          <div class="month-gauge-wrapper">
+            <canvas id="monthCurrCanvas"></canvas>
+            <div class="month-percent" id="month-curr-percent">–%</div>
+          </div>
+          <div class="month-info">
+            <div class="month-label" id="month-curr-label">Bu Ay</div>
+            <div class="month-kwh"   id="month-curr-kwh">– kWh</div>
+            <div class="month-cost"  id="month-curr-cost">– ₺</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Kademeler -->
+    <section class="panel">
+      <div class="panel-title">
+        <span>Kompanzasyon Kademeleri</span>
+        <small>(RG3-12CS – K1…K12)</small>
+      </div>
+      <div class="steps-grid">
+        <div class="step"><div class="led off" id="step-1-led"></div><div class="label">K1</div></div>
+        <div class="step"><div class="led off" id="step-2-led"></div><div class="label">K2</div></div>
+        <div class="step"><div class="led off" id="step-3-led"></div><div class="label">K3</div></div>
+        <div class="step"><div class="led off" id="step-4-led"></div><div class="label">K4</div></div>
+        <div class="step"><div class="led off" id="step-5-led"></div><div class="label">K5</div></div>
+        <div class="step"><div class="led off" id="step-6-led"></div><div class="label">K6</div></div>
+        <div class="step"><div class="led off" id="step-7-led"></div><div class="label">K7</div></div>
+        <div class="step"><div class="led off" id="step-8-led"></div><div class="label">K8</div></div>
+        <div class="step"><div class="led off" id="step-9-led"></div><div class="label">K9</div></div>
+        <div class="step"><div class="led off" id="step-10-led"></div><div class="label">K10</div></div>
+        <div class="step"><div class="led off" id="step-11-led"></div><div class="label">K11</div></div>
+        <div class="step"><div class="led off" id="step-12-led"></div><div class="label">K12</div></div>
+      </div>
+    </section>
+
+    <!-- Saatlik tablo + export -->
+    <section class="panel">
+      <div class="panel-title">
+        <span>Saatlik Tüketim Tablosu</span>
+        <div>
+          <button class="btn-secondary" id="btn-export-excel">Excel</button>
+          <button class="btn-secondary" id="btn-export-pdf">PDF</button>
+        </div>
+      </div>
+      <div id="hourly-table-container"></div>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  const API_BASE = "https://scada-d498.onrender.com/api/login";
+  let viewMode = "day"; // day | week | month
+
+  // Tema
+  const themeToggleBtn = document.getElementById("theme-toggle");
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark");
+    themeToggleBtn.textContent = "☀ Gündüz Modu";
+  }
+  themeToggleBtn.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    const isDark = document.body.classList.contains("dark");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+    themeToggleBtn.textContent = isDark ? "☀ Gündüz Modu" : "🌙 Gece Modu";
+  });
+
+  const state = { sites: [], selectedSite: null };
+  let dailyChart = null;
+  let monthChartPrev = null;
+  let monthChartCurr = null;
+
+  const siteListEl = document.getElementById("site-list");
+  const breadcrumbSiteEl = document.getElementById("breadcrumb-site");
+  const siteTitleEl = document.getElementById("site-title");
+  const dateInput = document.getElementById("date");
+  const viewModeSelect = document.getElementById("view-mode");
+
+  const cosphiEl = document.getElementById("card-cosphi");
+  const powerEl = document.getElementById("card-power");
+  const kwhEl = document.getElementById("card-kwh");
+  const dailyEl = document.getElementById("card-daily");
+  const indRatioEl = document.getElementById("card-ind-ratio");
+  const capRatioEl = document.getElementById("card-cap-ratio");
+  const hourlyTableContainer = document.getElementById("hourly-table-container");
+  const chartCaptionEl = document.getElementById("chart-caption");
+
+  const stepLeds = [];
+  for (let i = 1; i <= 12; i++) stepLeds[i] = document.getElementById(`step-${i}-led`);
+
+  const btnExportExcel = document.getElementById("btn-export-excel");
+  const btnExportPdf = document.getElementById("btn-export-pdf");
+
+  const today = new Date();
+  dateInput.value = today.toISOString().slice(0, 10);
+
+  dateInput.addEventListener("change", () => {
+    if (state.selectedSite) {
+      loadHourlyData();
+      loadDailySummary();
+      loadMonthSummary();
+    }
+  });
+
+  viewModeSelect.addEventListener("change", () => {
+    viewMode = viewModeSelect.value;
+    if (state.selectedSite) loadDailySummary();
+  });
+
+  async function fetchJSON(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  }
+
+  async function loadSites() {
+    try {
+      const sites = await fetchJSON(`${API_BASE}/sites`);
+      state.sites = sites;
+      renderSiteList();
+      if (sites.length > 0) selectSite(sites[0].id);
+    } catch (err) {
+      console.error(err);
+      siteListEl.innerHTML = "<div class='no-data'>Lokasyonlar yüklenemedi.</div>";
+    }
+  }
+
+  function renderSiteList() {
+    siteListEl.innerHTML = "";
+    state.sites.forEach(site => {
+      const div = document.createElement("div");
+      div.className =
+        "site-item" +
+        (state.selectedSite && state.selectedSite.id === site.id ? " active" : "");
+      div.onclick = () => selectSite(site.id);
+
+      const codeSpan = document.createElement("span");
+      codeSpan.className = "code";
+      codeSpan.textContent = site.code;
+
+      const nameSpan = document.createElement("span");
+      nameSpan.style.flex = "1";
+      nameSpan.style.marginLeft = "6px";
+      nameSpan.textContent = site.name;
+
+      const statusSpan = document.createElement("span");
+      const online = site.status ? site.status.toLowerCase() === "online" : true;
+      statusSpan.className = "status " + (online ? "status-online" : "status-offline");
+      statusSpan.textContent = online ? "ONLINE" : "OFFLINE";
+
+      div.appendChild(codeSpan);
+      div.appendChild(nameSpan);
+      div.appendChild(statusSpan);
+      siteListEl.appendChild(div);
+    });
+  }
+
+  function updateSelectedSiteUI() {
+    const s = state.selectedSite;
+    if (!s) return;
+    breadcrumbSiteEl.textContent = `${s.code} – ${s.name}`;
+    siteTitleEl.textContent = s.name;
+    renderSiteList();
+  }
+
+  async function selectSite(siteId) {
+    const s = state.sites.find(x => x.id === siteId);
+    state.selectedSite = s || null;
+    updateSelectedSiteUI();
+    await Promise.all([
+      loadRealtime(),
+      loadHourlyData(),
+      loadDailySummary(),
+      loadMonthSummary()
+    ]);
+  }
+
+  function updateStepLeds(steps) {
+    for (let i = 1; i <= 12; i++) {
+      const led = stepLeds[i];
+      if (!led) continue;
+      led.classList.remove("on", "off");
+      const isOn = steps && steps[i - 1] === 1;
+      led.classList.add(isOn ? "on" : "off");
+    }
+  }
+
+  async function loadRealtime() {
+    if (!state.selectedSite) return;
+    try {
+      const data = await fetchJSON(`${API_BASE}/sites/${state.selectedSite.id}/realtime`);
+      cosphiEl.textContent = data.cosphi != null ? data.cosphi.toFixed(3) : "–";
+      powerEl.textContent  = data.pTotalKw != null ? data.pTotalKw.toFixed(1) + " kW" : "–";
+      kwhEl.textContent    = data.pKwh != null ? data.pKwh.toFixed(1) + " kWh" : "–";
+      updateStepLeds(data.steps || []);
+    } catch (err) {
+      console.error(err);
+      cosphiEl.textContent = powerEl.textContent = kwhEl.textContent = "–";
+      updateStepLeds([]);
+    }
+  }
+
+  async function loadHourlyData() {
+    if (!state.selectedSite) return;
+    const date = dateInput.value;
+    try {
+      const rows = await fetchJSON(
+        `${API_BASE}/sites/${state.selectedSite.id}/hourly?date=${date}`
+      );
+      renderHourlyTable(rows);
+    } catch (err) {
+      console.error(err);
+      hourlyTableContainer.innerHTML =
+        "<div class='no-data'>Saatlik veri alınamadı.</div>";
+    }
+  }
+
+  function renderHourlyTable(rows) {
+    if (!rows || rows.length === 0) {
+      hourlyTableContainer.innerHTML =
+        "<div class='no-data'>Kriterlere uygun kayıt bulunamadı.</div>";
+      return;
+    }
+
+    const table = document.createElement("table");
+    const thead = document.createElement("thead");
+    thead.innerHTML = `
+      <tr>
+        <th>Saat</th>
+        <th>Aktif Enerji (kWh)</th>
+        <th>Delta Aktif Enerji (kWh)</th>
+      </tr>`;
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+    rows.forEach(row => {
+      const tr = document.createElement("tr");
+      const hourLabel = row.hourLabel || row.hour || "";
+      tr.innerHTML = `
+        <td>${hourLabel}</td>
+        <td>${Number(row.end_value).toFixed(2)}</td>
+        <td>${Number(row.delta_kwh).toFixed(2)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    hourlyTableContainer.innerHTML = "";
+    hourlyTableContainer.appendChild(table);
+  }
+
+  function renderDailyChart(rows, date) {
+    const ctx = document.getElementById("dailyChart").getContext("2d");
+    const labels = [];
+    const data = [];
+    rows.forEach(row => {
+      const hourLabel = row.hourLabel || row.hour || "";
+      labels.push(hourLabel);
+      data.push(Number(row.delta_kwh || 0));
+    });
+
+    if (dailyChart) dailyChart.destroy();
+
+    dailyChart = new Chart(ctx, {
+      type: "bar",
+      data: { labels, datasets: [{ label: "Saatlik Tüketim (kWh)", data }] },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true },
+          tooltip: { callbacks: {
+            label: ctx => ctx.parsed.y.toFixed(2) + " kWh"
+          } }
+        },
+        scales: {
+          x: { title: { display: true, text: "Saat" } },
+          y: { title: { display: true, text: "kWh" }, beginAtZero: true }
+        }
+      }
+    });
+
+    const total = data.reduce((a, b) => a + b, 0);
+    chartCaptionEl.textContent = `${date} tarihli toplam: ${total.toFixed(1)} kWh`;
+  }
+
+  function renderPeriodChart(rows, caption) {
+    const ctx = document.getElementById("dailyChart").getContext("2d");
+    const labels = rows.map(r => r.label || r.date);
+    const data = rows.map(r => Number(r.total_kwh || 0));
+
+    if (dailyChart) dailyChart.destroy();
+
+    dailyChart = new Chart(ctx, {
+      type: "bar",
+      data: { labels, datasets: [{ label: "Günlük Toplam Tüketim (kWh)", data }] },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true },
+          tooltip: { callbacks: {
+            label: ctx => ctx.parsed.y.toFixed(1) + " kWh"
+          } }
+        },
+        scales: {
+          x: { title: { display: true, text: "Gün" } },
+          y: { title: { display: true, text: "kWh" }, beginAtZero: true }
+        }
+      }
+    });
+
+    chartCaptionEl.textContent = caption;
+  }
+
+  async function loadDailySummary() {
+    if (!state.selectedSite) return;
+    const id = state.selectedSite.id;
+    const date = dateInput.value;
+
+    if (viewMode === "day") {
+      try {
+        const rows = await fetchJSON(
+          `${API_BASE}/sites/${id}/hourly?date=${date}`
+        );
+
+        if (!rows || rows.length === 0) {
+          dailyEl.textContent = "–";
+          indRatioEl.textContent = capRatioEl.textContent = "–";
+          chartCaptionEl.textContent = "Bu tarihte veri bulunamadı.";
+          if (dailyChart) { dailyChart.destroy(); dailyChart = null; }
+          return;
+        }
+
+        let totalP = 0, totalQind = 0, totalQcap = 0;
+        rows.forEach(r => {
+          totalP    += Number(r.delta_kwh || 0);
+          totalQind += Number(r.delta_qind_kvarh || 0);
+          totalQcap += Number(r.delta_qcap_kvarh || 0);
+        });
+
+        dailyEl.textContent = totalP.toFixed(1) + " kWh";
+
+        if (totalP > 0) {
+          const indRatio = (totalQind / totalP) * 100;
+          const capRatio = (totalQcap / totalP) * 100;
+          indRatioEl.textContent = indRatio.toFixed(1) + " %";
+          capRatioEl.textContent = capRatio.toFixed(1) + " %";
+        } else {
+          indRatioEl.textContent = capRatioEl.textContent = "–";
+        }
+
+        renderDailyChart(rows, date);
+      } catch (err) {
+        console.error(err);
+        dailyEl.textContent = indRatioEl.textContent = capRatioEl.textContent = "–";
+        chartCaptionEl.textContent = "Veri alınamadı.";
+        if (dailyChart) { dailyChart.destroy(); dailyChart = null; }
+      }
+      return;
+    }
+
+    try {
+      const ref = new Date(date);
+      let start, days, captionLabel;
+
+      if (viewMode === "week") {
+        const startDate = new Date(ref);
+        startDate.setDate(ref.getDate() - 6);
+        const endDate = ref;
+        start = startDate.toISOString().slice(0, 10);
+        days = 7;
+        captionLabel =
+          `${start} - ${endDate.toISOString().slice(0, 10)} arası toplam`;
+      } else {
+        const startDate = new Date(ref.getFullYear(), ref.getMonth(), 1);
+        const endDate = new Date(ref.getFullYear(), ref.getMonth() + 1, 0);
+        start = startDate.toISOString().slice(0, 10);
+        days = endDate.getDate();
+        const monthLabel = ref.toLocaleDateString("tr-TR", {
+          month: "long", year: "numeric"
+        });
+        captionLabel = `${monthLabel} toplam`;
+      }
+
+      const rows = await fetchJSON(
+        `${API_BASE}/sites/${id}/daily?start=${start}&days=${days}`
+      );
+
+      if (!rows || rows.length === 0) {
+        dailyEl.textContent = "–";
+        indRatioEl.textContent = capRatioEl.textContent = "–";
+        chartCaptionEl.textContent = "Bu periyotta veri bulunamadı.";
+        if (dailyChart) { dailyChart.destroy(); dailyChart = null; }
+        return;
+      }
+
+      const total = rows.reduce(
+        (sum, r) => sum + Number(r.total_kwh || 0),
+        0
+      );
+
+      dailyEl.textContent = total.toFixed(1) + " kWh";
+      indRatioEl.textContent = capRatioEl.textContent = "–";
+
+      renderPeriodChart(rows, `${captionLabel}: ${total.toFixed(1)} kWh`);
+    } catch (err) {
+      console.error(err);
+      dailyEl.textContent = indRatioEl.textContent = capRatioEl.textContent = "–";
+      chartCaptionEl.textContent = "Veri alınamadı.";
+      if (dailyChart) { dailyChart.destroy(); dailyChart = null; }
+    }
+  }
+
+  function renderMonthGauge(canvasId, percent, isCurrent) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    const data = [percent, Math.max(0, 100 - percent)];
+
+    const existing = canvasId === "monthPrevCanvas" ? monthChartPrev : monthChartCurr;
+    if (existing) existing.destroy();
+
+    const chart = new Chart(ctx, {
+      type: "doughnut",
+      data: {
+        labels: ["Kullanım", "Diğer"],
+        datasets: [{
+          data,
+          backgroundColor: isCurrent
+            ? ["#3b82f6", "#e5e7eb"]
+            : ["#9ca3af", "#e5e7eb"],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: "70%",
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false }
+        }
+      }
+    });
+
+    if (canvasId === "monthPrevCanvas") monthChartPrev = chart;
+    else monthChartCurr = chart;
+  }
+
+  async function loadMonthSummary() {
+    if (!state.selectedSite) return;
+
+    const d = new Date(dateInput.value);
+    const year = d.getFullYear();
+    const month = d.getMonth() + 1;
+
+    try {
+      const summary = await fetchJSON(
+        `${API_BASE}/sites/${state.selectedSite.id}/month-summary?year=${year}&month=${month}`
+      );
+
+      const prev = summary.previous;
+      const curr = summary.current;
+
+      document.getElementById("month-prev-label").textContent =
+        prev.label;
+      document.getElementById("month-prev-kwh").textContent =
+        `${prev.kwh_total.toLocaleString("tr-TR")} kWh`;
+      document.getElementById("month-prev-cost").textContent =
+        `${prev.cost_total.toLocaleString("tr-TR")} ₺`;
+      document.getElementById("month-prev-percent").textContent =
+        `${prev.percent}%`;
+
+      document.getElementById("month-curr-label").textContent =
+        curr.label;
+      document.getElementById("month-curr-kwh").textContent =
+        `${curr.kwh_total.toLocaleString("tr-TR")} kWh`;
+      document.getElementById("month-curr-cost").textContent =
+        `${curr.cost_total.toLocaleString("tr-TR")} ₺`;
+      document.getElementById("month-curr-percent").textContent =
+        `${curr.percent}%`;
+
+      renderMonthGauge("monthPrevCanvas", prev.percent, false);
+      renderMonthGauge("monthCurrCanvas", curr.percent, true);
+    } catch (err) {
+      console.error("Month summary error:", err);
+      ["prev","curr"].forEach(key => {
+        document.getElementById(`month-${key}-label`).textContent = "—";
+        document.getElementById(`month-${key}-kwh`).textContent = "– kWh";
+        document.getElementById(`month-${key}-cost`).textContent = "– ₺";
+        document.getElementById(`month-${key}-percent`).textContent = "–%";
+      });
+    }
+  }
+
+  function exportReport(format) {
+    if (!state.selectedSite) return;
+    const date = dateInput.value;
+    const url = `${API_BASE}/sites/${state.selectedSite.id}/hourly/export?date=${date}&format=${format}`;
+    window.open(url, "_blank");
+  }
+
+  btnExportExcel.addEventListener("click", () => exportReport("excel"));
+  btnExportPdf.addEventListener("click", () => exportReport("pdf"));
+
+  loadSites();
+  setInterval(() => {
+    if (state.selectedSite) loadRealtime();
+  }, 10000);
+</script>
+<script>
+(function() {
+  const role = localStorage.getItem("role");
+
+  // Login yoksa login sayfasına at
+  if (!role) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  // Kullanıcı Yönetimi linki sadece admin görsün
+  const menuUsers = document.getElementById("menu-users");
+  if (menuUsers && role !== "admin") {
+    menuUsers.style.display = "none";
+  }
+})();
+</script>
+
+
+</body>
+</html>
