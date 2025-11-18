@@ -2,10 +2,23 @@ const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const path = require("path"); // ⬅️ FRONTEND için eklendi
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// ================== FRONTEND SERVİSİ ==================
+// backend klasörüne göre ../frontend yolunu bul
+const FRONTEND_DIR = path.join(__dirname, "../frontend");
+
+// frontend klasöründeki tüm statik dosyaları (html, css, js) servis et
+app.use(express.static(FRONTEND_DIR));
+
+// köke gelen istekte index.html gönder
+app.get("/", (req, res) => {
+  res.sendFile(path.join(FRONTEND_DIR, "index.html"));
+});
 
 // ================== AUTH / KULLANICI SİSTEMİ ==================
 
@@ -327,7 +340,7 @@ app.get("/api/sites/:id/hourly/export", (req, res) => {
 
 // ================== SERVER ==================
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4000; // Render kendi PORT'unu buraya yazar
 app.listen(PORT, () => {
   console.log("DEMO Backend API port:", PORT);
 });
