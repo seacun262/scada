@@ -116,6 +116,7 @@ app.post("/api/users", auth, requireAdmin, (req, res) => {
       .json({ error: "username, password ve role zorunludur." });
   }
 
+  // Aynı kullanıcı adı var mı?
   const existing = users.find((u) => u.username === username);
   if (existing) {
     return res
