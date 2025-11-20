@@ -88,12 +88,56 @@
     }
 
     .sidebar h2 {
-      margin-top: 0;
-      margin-bottom: 10px;
-      font-size: 16px;
+      margin: 0 0 8px 0;
+      font-size: 15px;
       color: #ffffff;
     }
 
+    /* --- Ana menü --- */
+    .main-menu {
+      margin-bottom: 16px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      border-radius: 6px;
+      background: #0f5fd1;
+      color: #e5e7eb;
+      font-size: 13px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.05s;
+    }
+
+    .menu-item:hover {
+      background: #1d72ec;
+      transform: translateY(-1px);
+    }
+
+    .menu-item.active {
+      background: #66b7f1;
+      color: #003a70;
+      font-weight: 600;
+    }
+
+    .menu-code {
+      font-weight: 700;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.2);
+    }
+
+    .menu-text {
+      flex: 1;
+      white-space: nowrap;
+    }
+
+    /* --- Lokasyon listesi --- */
     .site-item {
       background: #0059a9;
       padding: 8px 10px;
@@ -105,8 +149,6 @@
       align-items: center;
       transition: 0.2s;
       font-size: 13px;
-      color: #ffffff;
-      text-decoration: none;
     }
 
     .site-item:hover {
@@ -394,6 +436,305 @@
       color: #4b5563;
     }
 
+    /* ================== HEATMAP PANEL ================== */
+    .heatmap-panel {
+      background: white;
+      padding: 14px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+
+    .heatmap-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #003a70;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .heatmap-subinfo {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    /* --- 4'lü layout: köşe, saatler, günler, grid --- */
+    .heatmap-wrapper {
+      margin-top: 6px;
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      grid-template-rows: 24px auto;
+      column-gap: 4px;
+      row-gap: 4px;
+      align-items: stretch;
+    }
+
+    .heatmap-corner {
+      grid-row: 1 / 2;
+      grid-column: 1 / 2;
+      font-size: 11px;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+
+    .heatmap-hours {
+      grid-row: 1 / 2;
+      grid-column: 2 / 3;
+      display: grid;
+      grid-template-columns: repeat(24, 1fr);
+      gap: 3px;
+    }
+
+    .hour-header {
+      font-size: 9px;
+      text-align: center;
+      padding: 2px 0;
+      border-radius: 4px;
+      color: #e5e7eb;
+      background: #0f172a;
+    }
+
+    .tariff-night { background: #020617; }
+    .tariff-day   { background: #1d4ed8; }
+    .tariff-peak  { background: #f97316; }
+
+    .heatmap-days {
+      grid-row: 2 / 3;
+      grid-column: 1 / 2;
+      display: grid;
+      grid-auto-rows: minmax(18px, 1fr);
+      gap: 3px;
+      padding-top: 1px;
+    }
+
+    .day-label {
+      font-size: 11px;
+      color: #f9fafb;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding-left: 4px;
+      border-radius: 4px;
+      background: #0f172a55;
+      white-space: nowrap;
+    }
+
+    .heatmap-grid {
+      grid-row: 2 / 3;
+      grid-column: 2 / 3;
+      display: grid;
+      grid-template-columns: repeat(24, 1fr);
+      gap: 3px;
+    }
+
+    .heat-cell {
+      width: 100%;
+      padding-top: 100%;
+      border-radius: 4px;
+      position: relative;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      cursor: pointer;
+    }
+
+    .heat-cell-value {
+      position: absolute;
+      inset: 0;
+      font-size: 9px;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+
+    .heat-low {
+      background: #22c55e;
+      border-color: #16a34a;
+      color: #052e16;
+    }
+
+    .heat-mid {
+      background: #eab308;
+      border-color: #ca8a04;
+      color: #1f2933;
+    }
+
+    .heat-high {
+      background: #f97316;
+      border-color: #ea580c;
+      color: #111827;
+    }
+
+    .heat-max {
+      background: #ef4444;
+      border-color: #b91c1c;
+      color: #f9fafb;
+    }
+
+    /* ====== HEATMAP DETAY KARTI ====== */
+    .heatmap-detail {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #f9fafb;
+      border: 1px solid #dbeafe;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.10);
+      font-size: 12px;
+      transform: translateY(4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .heatmap-detail.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .heatmap-detail-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .heatmap-detail-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #3b82f6, #22c55e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f9fafb;
+      font-size: 14px;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    .heatmap-detail-title {
+      font-weight: 600;
+      color: #1e3a8a;
+      font-size: 13px;
+    }
+
+    .heatmap-detail-sub {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .heatmap-detail-body {
+      border-top: 1px dashed #e5e7eb;
+      padding-top: 6px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 4px 12px;
+    }
+
+    .heat-label {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .heat-value {
+      font-weight: 600;
+      color: #111827;
+    }
+
+    /* ====== POPUP (MODAL) ====== */
+    .heatmap-modal {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .heatmap-modal.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .heatmap-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15,23,42,0.65);
+    }
+
+    .heatmap-modal-content {
+      position: relative;
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 14px 16px;
+      width: min(380px, 92vw);
+      box-shadow: 0 18px 45px rgba(15,23,42,0.50);
+      z-index: 1;
+      border: 1px solid #dbeafe;
+      font-size: 13px;
+    }
+
+    .heatmap-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .heatmap-modal-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1e3a8a;
+    }
+
+    .heatmap-modal-sub {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .heatmap-detail-close {
+      border: none;
+      background: transparent;
+      color: #9ca3af;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0 2px;
+      margin-left: 8px;
+    }
+
+    .heatmap-detail-close:hover {
+      color: #4b5563;
+    }
+
+    .heatmap-modal-body {
+      border-top: 1px dashed #e5e7eb;
+      padding-top: 8px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 12px;
+    }
+
+    .modal-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .modal-row-full {
+      grid-column: 1 / -1;
+    }
+
     /* ================== DARK MODE ================== */
     body.dark {
       background: #020617;
@@ -409,15 +750,15 @@
       background: #020617;
     }
 
-    body.dark .site-item {
+    body.dark .menu-item {
       background: #0f172a;
     }
 
-    body.dark .site-item:hover {
+    body.dark .menu-item:hover {
       background: #1e293b;
     }
 
-    body.dark .site-item.active {
+    body.dark .menu-item.active {
       background: #1d4ed8;
       color: #e5e7eb;
     }
@@ -476,6 +817,29 @@
       color: #e5e7eb;
     }
 
+    body.dark .heatmap-panel {
+      background: #020617;
+      border-color: #1f2937;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.7);
+    }
+
+    body.dark .heat-cell {
+      border-color: #1f2937;
+      background: #020617;
+    }
+
+    body.dark .heatmap-detail {
+      background: #020617;
+      border-color: #1d4ed8;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.6);
+    }
+
+    body.dark .heatmap-modal-content {
+      background: #020617;
+      border-color: #1f2937;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.85);
+    }
+
     /* ================== MOBİL ================== */
     @media (max-width: 900px) {
       .layout {
@@ -485,25 +849,15 @@
       .sidebar {
         height: auto;
         display: flex;
-        overflow-x: auto;
-      }
-      .sidebar h2 {
-        display: none;
-      }
-      #site-list {
-        display: flex;
-        gap: 8px;
-      }
-      .site-item {
-        min-width: 180px;
-      }
-      .content {
-        height: auto;
+        flex-direction: column;
       }
       header {
         flex-direction: column;
         align-items: flex-start;
         gap: 8px;
+      }
+      .heatmap-wrapper {
+        overflow-x: auto;
       }
     }
   </style>
@@ -531,40 +885,39 @@
 <div class="layout">
   <aside class="sidebar">
     <h2>Menü</h2>
+    <nav class="main-menu">
+      <a href="index.html" class="menu-item active" id="menu-dash">
+        <span class="menu-code">DASH</span>
+        <span class="menu-text">Ana Ekran</span>
+      </a>
+      <a href="Alarmlar.html" class="menu-item" id="menu-alarms">
+        <span class="menu-code">ALR</span>
+        <span class="menu-text">Alarmlar</span>
+      </a>
+      <a href="kompanzasyon.html" class="menu-item" id="menu-komp">
+        <span class="menu-code">KMP</span>
+        <span class="menu-text">Kompanzasyon</span>
+      </a>
+      <a href="fatura.html" class="menu-item" id="menu-fatura">
+        <span class="menu-code">FTR</span>
+        <span class="menu-text">Fatura Simülasyonu</span>
+      </a>
+      <a href="users.html" class="menu-item" id="menu-users">
+        <span class="menu-code">USR</span>
+        <span class="menu-text">Kullanıcı Yönetimi</span>
+      </a>
+    </nav>
 
-    <!-- Genel menü -->
-    <a id="menu-dashboard" href="index.html" class="site-item" style="margin-bottom:6px; display:block;">
-      <span class="code">DASH</span>
-      <span style="flex:1;margin-left:6px;">Ana Ekran</span>
-    </a>
-
-    <a id="menu-alarms" href="alarmlar.html" class="site-item" style="margin-bottom:6px; display:block;">
-      <span class="code">ALR</span>
-      <span style="flex:1;margin-left:6px;">Alarmlar</span>
-    </a>
-
-    <a id="menu-komp" href="kompanzasyon.html" class="site-item" style="margin-bottom:6px; display:block;">
-      <span class="code">KMP</span>
-      <span style="flex:1;margin-left:6px;">Kompanzasyon</span>
-    </a>
-
-    <a id="menu-fatura" href="fatura.html" class="site-item" style="margin-bottom:10px; display:block;">
-      <span class="code">FTR</span>
-      <span style="flex:1;margin-left:6px;">Fatura Simülasyonu</span>
-    </a>
-
-    <!-- Sadece admin -->
-    <a id="menu-users" href="users.html" class="site-item" style="margin-bottom:10px; display:block;">
-      <span class="code">USR</span>
-      <span style="flex:1;margin-left:6px;">Kullanıcı Yönetimi</span>
-    </a>
-
-    <h2 style="margin-top:14px;">Lokasyonlar</h2>
+    <h2>Lokasyonlar</h2>
     <div id="site-list"></div>
   </aside>
 
   <main class="content">
-    <div class="breadcrumbs">Lokasyon: <span id="breadcrumb-site">–</span></div>
+    <div class="breadcrumbs">
+      Lokasyon: <span id="breadcrumb-site">–</span>
+      &nbsp;|&nbsp;
+      Görünüm: <span id="breadcrumb-mode">Günlük</span>
+    </div>
     <div class="site-title" id="site-title">Lütfen bir lokasyon seçin</div>
 
     <!-- KARTLAR -->
@@ -645,6 +998,94 @@
       </div>
     </section>
 
+    <!-- HEATMAP PANEL -->
+    <section class="heatmap-panel">
+      <div class="heatmap-title">
+        <span>Tüketim Isı Haritası</span>
+        <span class="heatmap-subinfo" id="heatmap-caption">
+          Günlük/Haftalık/Aylık tüketim yoğunluğu
+        </span>
+      </div>
+
+      <div class="heatmap-subinfo" id="heatmap-range-info" style="margin-bottom:4px;">
+        Görüntülenen aralık: –
+      </div>
+
+      <div class="heatmap-wrapper">
+        <div class="heatmap-corner">Gün / Saat</div>
+        <div id="heatmap-hours" class="heatmap-hours"></div>
+        <div id="heatmap-days" class="heatmap-days"></div>
+        <div id="heatmap-grid" class="heatmap-grid"></div>
+      </div>
+
+      <!-- Sayfa içi küçük kart -->
+      <div id="heatmap-detail" class="heatmap-detail">
+        <div class="heatmap-detail-header">
+          <div class="heatmap-detail-icon">⚡</div>
+          <div>
+            <div id="heatmap-detail-title" class="heatmap-detail-title">
+              Hücre seçilmedi
+            </div>
+            <div id="heatmap-detail-sub" class="heatmap-detail-sub">
+              Isı haritasından bir hücreye tıklayın; seçilen gün / saat detayını görün.
+            </div>
+          </div>
+        </div>
+        <div id="heatmap-detail-body" class="heatmap-detail-body">
+          <div class="modal-row-full">
+            <div class="heat-label">Bilgi</div>
+            <div class="heat-value">
+              Hücreye tıkladığınızda kWh, tahmini kW ve akım (A) bilgisi burada listelenecek.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- POPUP (MODAL) -->
+    <div id="heatmap-modal" class="heatmap-modal">
+      <div id="heatmap-modal-backdrop" class="heatmap-modal-backdrop"></div>
+      <div class="heatmap-modal-content">
+        <div class="heatmap-modal-header">
+          <div>
+            <div class="heatmap-modal-title">Tüketim Detayı</div>
+            <div id="modal-site" class="heatmap-modal-sub">–</div>
+          </div>
+          <button id="modal-close" class="heatmap-detail-close" type="button">×</button>
+        </div>
+        <div class="heatmap-modal-body">
+          <div class="modal-row">
+            <span class="heat-label">Tarih</span>
+            <span id="modal-date" class="heat-value">–</span>
+          </div>
+          <div class="modal-row">
+            <span class="heat-label">Saat</span>
+            <span id="modal-hour" class="heat-value">–</span>
+          </div>
+          <div class="modal-row">
+            <span class="heat-label">Görünüm</span>
+            <span id="modal-mode" class="heat-value">–</span>
+          </div>
+          <div class="modal-row">
+            <span class="heat-label">Ay</span>
+            <span id="modal-month" class="heat-value">–</span>
+          </div>
+          <div class="modal-row modal-row-full">
+            <span class="heat-label">Tüketim (kWh)</span>
+            <span id="modal-kwh" class="heat-value">–</span>
+          </div>
+          <div class="modal-row">
+            <span class="heat-label">Tahmini Güç (kW)</span>
+            <span id="modal-kw" class="heat-value">–</span>
+          </div>
+          <div class="modal-row">
+            <span class="heat-label">Tahmini Akım (A)</span>
+            <span id="modal-current" class="heat-value">–</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Kademeler -->
     <section class="panel">
       <div class="panel-title">
@@ -684,11 +1125,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-  /* === ÖNEMLİ: API BASE ARTIK /api === */
-  const API_BASE = "/api";
+  const API_BASE = "http://localhost:4000/api";
   let viewMode = "day"; // day | week | month
 
-  // Tema
+  /* ================== TEMA ================== */
   const themeToggleBtn = document.getElementById("theme-toggle");
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme === "dark") {
@@ -709,6 +1149,7 @@
 
   const siteListEl = document.getElementById("site-list");
   const breadcrumbSiteEl = document.getElementById("breadcrumb-site");
+  const breadcrumbModeEl = document.getElementById("breadcrumb-mode");
   const siteTitleEl = document.getElementById("site-title");
   const dateInput = document.getElementById("date");
   const viewModeSelect = document.getElementById("view-mode");
@@ -722,6 +1163,37 @@
   const hourlyTableContainer = document.getElementById("hourly-table-container");
   const chartCaptionEl = document.getElementById("chart-caption");
 
+  const heatmapGridEl = document.getElementById("heatmap-grid");
+  const heatmapCaptionEl = document.getElementById("heatmap-caption");
+  const heatmapRangeInfoEl = document.getElementById("heatmap-range-info");
+  const heatmapHoursEl = document.getElementById("heatmap-hours");
+  const heatmapDaysEl = document.getElementById("heatmap-days");
+
+  const heatmapDetailEl = document.getElementById("heatmap-detail");
+  const heatmapDetailTitleEl = document.getElementById("heatmap-detail-title");
+  const heatmapDetailSubEl   = document.getElementById("heatmap-detail-sub");
+  const heatmapDetailBodyEl  = document.getElementById("heatmap-detail-body");
+
+  // Modal
+  const heatmapModalEl         = document.getElementById("heatmap-modal");
+  const heatmapModalBackdropEl = document.getElementById("heatmap-modal-backdrop");
+  const heatmapModalCloseEl    = document.getElementById("modal-close");
+  const modalSiteEl    = document.getElementById("modal-site");
+  const modalDateEl    = document.getElementById("modal-date");
+  const modalHourEl    = document.getElementById("modal-hour");
+  const modalModeEl    = document.getElementById("modal-mode");
+  const modalMonthEl   = document.getElementById("modal-month");
+  const modalKwhEl     = document.getElementById("modal-kwh");
+  const modalKwEl      = document.getElementById("modal-kw");
+  const modalCurrentEl = document.getElementById("modal-current");
+
+  heatmapModalCloseEl.addEventListener("click", () => {
+    heatmapModalEl.classList.remove("open");
+  });
+  heatmapModalBackdropEl.addEventListener("click", () => {
+    heatmapModalEl.classList.remove("open");
+  });
+
   const stepLeds = [];
   for (let i = 1; i <= 12; i++) stepLeds[i] = document.getElementById(`step-${i}-led`);
 
@@ -731,55 +1203,19 @@
   const today = new Date();
   dateInput.value = today.toISOString().slice(0, 10);
 
-  dateInput.addEventListener("change", () => {
-    if (state.selectedSite) {
-      loadHourlyData();
-      loadDailySummary();
-      loadMonthSummary();
-    }
-  });
+  /* ================== DEMO LOKASYONLAR ================== */
+  state.sites = [
+    { id: 1, code: "SITE_01", name: "Tuzla Belediyesi Ana Bina", status: "online" },
+    { id: 2, code: "SITE_02", name: "Sosyal Tesis", status: "online" },
+    { id: 3, code: "SITE_03", name: "Garaj - Atölye", status: "offline" }
+  ];
+  renderSiteList();
+  if (state.sites.length > 0) selectSite(state.sites[0].id);
 
-  viewModeSelect.addEventListener("change", () => {
-    viewMode = viewModeSelect.value;
-    if (state.selectedSite) loadDailySummary();
-  });
-
-  /* === ÖNEMLİ: Token’lı fetch === */
-  async function fetchJSON(url) {
-    const token = localStorage.getItem("token");
-    const headers = {};
-
-    if (token) {
-      headers["Authorization"] = "Bearer " + token;
-    }
-
-    const res = await fetch(url, { headers });
-
-    if (res.status === 401 || res.status === 403) {
-      // Token bozuk veya yok → temizle, login'e dön
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
-      window.location.href = "login.html";
-      throw new Error("Yetkisiz");
-    }
-
-    if (!res.ok) {
-      throw new Error("HTTP " + res.status);
-    }
-
-    return res.json();
-  }
-
-  async function loadSites() {
-    try {
-      const sites = await fetchJSON(`${API_BASE}/sites`);
-      state.sites = sites;
-      renderSiteList();
-      if (sites.length > 0) selectSite(sites[0].id);
-    } catch (err) {
-      console.error(err);
-      siteListEl.innerHTML = "<div class='no-data'>Lokasyonlar yüklenemedi.</div>";
-    }
+  function modeText() {
+    return viewMode === "day" ? "Günlük"
+         : viewMode === "week" ? "Haftalık"
+         : "Aylık";
   }
 
   function renderSiteList() {
@@ -824,12 +1260,15 @@
     const s = state.sites.find(x => x.id === siteId);
     state.selectedSite = s || null;
     updateSelectedSiteUI();
+    heatmapModalEl.classList.remove("open");
+    heatmapDetailEl.classList.remove("active");
     await Promise.all([
       loadRealtime(),
       loadHourlyData(),
       loadDailySummary(),
       loadMonthSummary()
     ]);
+    updateHeatmap();
   }
 
   function updateStepLeds(steps) {
@@ -842,34 +1281,35 @@
     }
   }
 
+  /* ================== DEMO REALTIME ================== */
   async function loadRealtime() {
     if (!state.selectedSite) return;
-    try {
-      const data = await fetchJSON(`${API_BASE}/sites/${state.selectedSite.id}/realtime`);
-      cosphiEl.textContent = data.cosphi != null ? data.cosphi.toFixed(3) : "–";
-      powerEl.textContent  = data.pTotalKw != null ? data.pTotalKw.toFixed(1) + " kW" : "–";
-      kwhEl.textContent    = data.pKwh != null ? data.pKwh.toFixed(1) + " kWh" : "–";
-      updateStepLeds(data.steps || []);
-    } catch (err) {
-      console.error(err);
-      cosphiEl.textContent = powerEl.textContent = kwhEl.textContent = "–";
-      updateStepLeds([]);
-    }
+    const cosphi = 0.9 + Math.random() * 0.09;
+    const pTotal = 10 + Math.random() * 60;
+    const pKwh = 20000 + Math.random() * 50000;
+    cosphiEl.textContent = cosphi.toFixed(3);
+    powerEl.textContent = pTotal.toFixed(1) + " kW";
+    kwhEl.textContent = pKwh.toFixed(1) + " kWh";
+
+    const steps = Array.from({ length: 12 }, () => Math.random() > 0.7 ? 1 : 0);
+    updateStepLeds(steps);
   }
 
+  /* ================== DEMO Saatlik tablo ================== */
   async function loadHourlyData() {
     if (!state.selectedSite) return;
-    const date = dateInput.value;
-    try {
-      const rows = await fetchJSON(
-        `${API_BASE}/sites/${state.selectedSite.id}/hourly?date=${date}`
-      );
-      renderHourlyTable(rows);
-    } catch (err) {
-      console.error(err);
-      hourlyTableContainer.innerHTML =
-        "<div class='no-data'>Saatlik veri alınamadı.</div>";
+    const rows = [];
+    let cumulative = 0;
+    for (let h = 0; h < 24; h++) {
+      const delta = 0.3 + Math.random() * 3;
+      cumulative += delta;
+      rows.push({
+        hourLabel: h.toString().padStart(2,"0")+":00",
+        end_value: cumulative,
+        delta_kwh: delta,
+      });
     }
+    renderHourlyTable(rows);
   }
 
   function renderHourlyTable(rows) {
@@ -892,7 +1332,7 @@
     const tbody = document.createElement("tbody");
     rows.forEach(row => {
       const tr = document.createElement("tr");
-      const hourLabel = row.hourLabel || row.hour || "";
+      const hourLabel = row.hourLabel || "";
       tr.innerHTML = `
         <td>${hourLabel}</td>
         <td>${Number(row.end_value).toFixed(2)}</td>
@@ -905,12 +1345,13 @@
     hourlyTableContainer.appendChild(table);
   }
 
+  /* ================== GRAFİKLER ================== */
   function renderDailyChart(rows, date) {
     const ctx = document.getElementById("dailyChart").getContext("2d");
     const labels = [];
     const data = [];
     rows.forEach(row => {
-      const hourLabel = row.hourLabel || row.hour || "";
+      const hourLabel = row.hourLabel || "";
       labels.push(hourLabel);
       data.push(Number(row.delta_kwh || 0));
     });
@@ -969,112 +1410,83 @@
     chartCaptionEl.textContent = caption;
   }
 
+  /* ================== Günlük/Haftalık/Aylık ÖZET ================== */
   async function loadDailySummary() {
     if (!state.selectedSite) return;
-    const id = state.selectedSite.id;
     const date = dateInput.value;
+    breadcrumbModeEl.textContent = modeText();
 
     if (viewMode === "day") {
-      try {
-        const rows = await fetchJSON(
-          `${API_BASE}/sites/${id}/hourly?date=${date}`
-        );
-
-        if (!rows || rows.length === 0) {
-          dailyEl.textContent = "–";
-          indRatioEl.textContent = capRatioEl.textContent = "–";
-          chartCaptionEl.textContent = "Bu tarihte veri bulunamadı.";
-          if (dailyChart) { dailyChart.destroy(); dailyChart = null; }
-          return;
-        }
-
-        let totalP = 0, totalQind = 0, totalQcap = 0;
-        rows.forEach(r => {
-          totalP    += Number(r.delta_kwh || 0);
-          totalQind += Number(r.delta_qind_kvarh || 0);
-          totalQcap += Number(r.delta_qcap_kvarh || 0);
+      const rows = [];
+      let totalP = 0;
+      for (let h = 0; h < 24; h++) {
+        const delta = 0.3 + Math.random() * 3;
+        totalP += delta;
+        rows.push({
+          hourLabel: h.toString().padStart(2,"0")+":00",
+          delta_kwh: delta,
+          delta_qind_kvarh: Math.random()*1.5,
+          delta_qcap_kvarh: Math.random()*1.0
         });
-
-        dailyEl.textContent = totalP.toFixed(1) + " kWh";
-
-        if (totalP > 0) {
-          const indRatio = (totalQind / totalP) * 100;
-          const capRatio = (totalQcap / totalP) * 100;
-          indRatioEl.textContent = indRatio.toFixed(1) + " %";
-          capRatioEl.textContent = capRatio.toFixed(1) + " %";
-        } else {
-          indRatioEl.textContent = capRatioEl.textContent = "–";
-        }
-
-        renderDailyChart(rows, date);
-      } catch (err) {
-        console.error(err);
-        dailyEl.textContent = indRatioEl.textContent = capRatioEl.textContent = "–";
-        chartCaptionEl.textContent = "Veri alınamadı.";
-        if (dailyChart) { dailyChart.destroy(); dailyChart = null; }
       }
+      dailyEl.textContent = totalP.toFixed(1) + " kWh";
+      const totalQind = rows.reduce((a,r)=>a+Number(r.delta_qind_kvarh||0),0);
+      const totalQcap = rows.reduce((a,r)=>a+Number(r.delta_qcap_kvarh||0),0);
+      if (totalP > 0) {
+        indRatioEl.textContent = ((totalQind/totalP)*100).toFixed(1)+" %";
+        capRatioEl.textContent = ((totalQcap/totalP)*100).toFixed(1)+" %";
+      } else {
+        indRatioEl.textContent = capRatioEl.textContent = "–";
+      }
+      renderDailyChart(rows, date);
       return;
     }
 
-    try {
-      const ref = new Date(date);
-      let start, days, captionLabel;
+    const ref = new Date(date);
+    let start, end;
 
-      if (viewMode === "week") {
-        const startDate = new Date(ref);
-        startDate.setDate(ref.getDate() - 6);
-        const endDate = ref;
-        start = startDate.toISOString().slice(0, 10);
-        days = 7;
-        captionLabel =
-          `${start} - ${endDate.toISOString().slice(0, 10)} arası toplam`;
-      } else {
-        const startDate = new Date(ref.getFullYear(), ref.getMonth(), 1);
-        const endDate = new Date(ref.getFullYear(), ref.getMonth() + 1, 0);
-        start = startDate.toISOString().slice(0, 10);
-        days = endDate.getDate();
-        const monthLabel = ref.toLocaleDateString("tr-TR", {
-          month: "long", year: "numeric"
-        });
-        captionLabel = `${monthLabel} toplam`;
-      }
-
-      const rows = await fetchJSON(
-        `${API_BASE}/sites/${id}/daily?start=${start}&days=${days}`
-      );
-
-      if (!rows || rows.length === 0) {
-        dailyEl.textContent = "–";
-        indRatioEl.textContent = capRatioEl.textContent = "–";
-        chartCaptionEl.textContent = "Bu periyotta veri bulunamadı.";
-        if (dailyChart) { dailyChart.destroy(); dailyChart = null; }
-        return;
-      }
-
-      const total = rows.reduce(
-        (sum, r) => sum + Number(r.total_kwh || 0),
-        0
-      );
-
-      dailyEl.textContent = total.toFixed(1) + " kWh";
-      indRatioEl.textContent = capRatioEl.textContent = "–";
-
-      renderPeriodChart(rows, `${captionLabel}: ${total.toFixed(1)} kWh`);
-    } catch (err) {
-      console.error(err);
-      dailyEl.textContent = indRatioEl.textContent = capRatioEl.textContent = "–";
-      chartCaptionEl.textContent = "Veri alınamadı.";
-      if (dailyChart) { dailyChart.destroy(); dailyChart = null; }
+    if (viewMode === "week") {
+      start = new Date(ref);
+      start.setDate(ref.getDate() - 6);
+      end = ref;
+    } else {
+      start = new Date(ref.getFullYear(), ref.getMonth(), 1);
+      end   = new Date(ref.getFullYear(), ref.getMonth() + 1, 0);
     }
+
+    const msPerDay = 24 * 60 * 60 * 1000;
+    const days = Math.round((end - start) / msPerDay) + 1;
+
+    const rows = [];
+    let total = 0;
+    for (let i = 0; i < days; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      const val = 50 + Math.random()*250;
+      total += val;
+      rows.push({
+        date: d.toISOString().slice(0,10),
+        label: d.toLocaleDateString("tr-TR", { day:"2-digit", month:"2-digit" }),
+        total_kwh: val
+      });
+    }
+    dailyEl.textContent = total.toFixed(1) + " kWh";
+    indRatioEl.textContent = capRatioEl.textContent = "–";
+
+    const captionLabel =
+      viewMode === "week"
+        ? `${start.toLocaleDateString("tr-TR")} - ${end.toLocaleDateString("tr-TR")} arası toplam`
+        : ref.toLocaleDateString("tr-TR", { month:"long", year:"numeric" }) + " toplam";
+    renderPeriodChart(rows, `${captionLabel}: ${total.toFixed(1)} kWh`);
   }
 
+  /* ================== Aylık Karşılaştırma Donut ================== */
   function renderMonthGauge(canvasId, percent, isCurrent) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
 
     const data = [percent, Math.max(0, 100 - percent)];
-
     const existing = canvasId === "monthPrevCanvas" ? monthChartPrev : monthChartCurr;
     if (existing) existing.destroy();
 
@@ -1108,79 +1520,309 @@
   async function loadMonthSummary() {
     if (!state.selectedSite) return;
 
-    const d = new Date(dateInput.value);
-    const year = d.getFullYear();
-    const month = d.getMonth() + 1;
+    const prevKwh = 1500 + Math.random()*3000;
+    const currKwh = 1500 + Math.random()*3000;
+    const unitPrice = 3.2;
+    const prevCost = prevKwh * unitPrice;
+    const currCost = currKwh * unitPrice;
+    const total = prevKwh + currKwh || 1;
+    const prevPercent = Math.round(prevKwh / total * 100);
+    const currPercent = Math.round(currKwh / total * 100);
 
-    try {
-      const summary = await fetchJSON(
-        `${API_BASE}/sites/${state.selectedSite.id}/month-summary?year=${year}&month=${month}`
-      );
+    document.getElementById("month-prev-label").textContent = "Geçen Ay";
+    document.getElementById("month-prev-kwh").textContent =
+      `${prevKwh.toFixed(1)} kWh`;
+    document.getElementById("month-prev-cost").textContent =
+      `${prevCost.toFixed(2)} ₺`;
+    document.getElementById("month-prev-percent").textContent =
+      `${prevPercent}%`;
 
-      const prev = summary.previous;
-      const curr = summary.current;
+    document.getElementById("month-curr-label").textContent = "Bu Ay";
+    document.getElementById("month-curr-kwh").textContent =
+      `${currKwh.toFixed(1)} kWh`;
+    document.getElementById("month-curr-cost").textContent =
+      `${currCost.toFixed(2)} ₺`;
+    document.getElementById("month-curr-percent").textContent =
+      `${currPercent}%`;
 
-      document.getElementById("month-prev-label").textContent =
-        prev.label;
-      document.getElementById("month-prev-kwh").textContent =
-        `${prev.kwh_total.toLocaleString("tr-TR")} kWh`;
-      document.getElementById("month-prev-cost").textContent =
-        `${prev.cost_total.toLocaleString("tr-TR")} ₺`;
-      document.getElementById("month-prev-percent").textContent =
-        `${prev.percent}%`;
+    renderMonthGauge("monthPrevCanvas", prevPercent, false);
+    renderMonthGauge("monthCurrCanvas", currPercent, true);
+  }
 
-      document.getElementById("month-curr-label").textContent =
-        curr.label;
-      document.getElementById("month-curr-kwh").textContent =
-        `${curr.kwh_total.toLocaleString("tr-TR")} kWh`;
-      document.getElementById("month-curr-cost").textContent =
-        `${curr.cost_total.toLocaleString("tr-TR")} ₺`;
-      document.getElementById("month-curr-percent").textContent =
-        `${curr.percent}%`;
+  /* ================== ISI HARİTASI ================== */
+  const WEEKDAY_SHORT = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
+  const TARIFF_LABELS = {
+    night: "Gece",
+    day: "Gündüz",
+    peak: "Puant"
+  };
 
-      renderMonthGauge("monthPrevCanvas", prev.percent, false);
-      renderMonthGauge("monthCurrCanvas", curr.percent, true);
-    } catch (err) {
-      console.error("Month summary error:", err);
-      ["prev","curr"].forEach(key => {
-        document.getElementById(`month-${key}-label`).textContent = "—";
-        document.getElementById(`month-${key}-kwh`).textContent = "– kWh";
-        document.getElementById(`month-${key}-cost`).textContent = "– ₺";
-        document.getElementById(`month-${key}-percent`).textContent = "–%";
-      });
+  function getTariffBand(hour) {
+    if (hour === 23 || hour <= 6) return "night";      // 23–06
+    if (hour >= 7 && hour <= 17) return "day";         // 07–17
+    return "peak";                                     // 18–22
+  }
+
+  function renderHeatmapHours() {
+    heatmapHoursEl.innerHTML = "";
+    for (let h = 0; h < 24; h++) {
+      const div = document.createElement("div");
+      const label = h.toString().padStart(2, "0") + ":00";
+      const band = getTariffBand(h);
+      div.className = "hour-header tariff-" + band;
+      div.textContent = label;
+      div.title = `${label} → ${TARIFF_LABELS[band]} tarifesi`;
+      heatmapHoursEl.appendChild(div);
     }
   }
 
+  function renderHeatmapDays(labels) {
+    heatmapDaysEl.innerHTML = "";
+    labels.forEach(lbl => {
+      const div = document.createElement("div");
+      div.className = "day-label";
+      div.textContent = lbl;
+      heatmapDaysEl.appendChild(div);
+    });
+  }
+
+  function classifyHeatCell(value, max) {
+    if (max <= 0) return "heat-low";
+    const r = value / max;
+    if (r < 0.25) return "heat-low";
+    if (r < 0.50) return "heat-mid";
+    if (r < 0.75) return "heat-high";
+    return "heat-max";
+  }
+
+  function generateHeatmapDemo(viewMode, baseDateStr) {
+    const baseDate = new Date(baseDateStr);
+    const rows = [];
+    let caption = "";
+    let rangeInfo = "";
+
+    function makeHourlyValues(dayFactor = 1) {
+      const vals = [];
+      for (let h = 0; h < 24; h++) {
+        let base = 0.2;
+        if (h >= 7 && h < 18) base = 0.6;
+        if (h >= 18 && h <= 22) base = 1.0;
+        const v = (base + Math.random() * 0.4) * 8 * dayFactor;
+        vals.push(v);
+      }
+      return vals;
+    }
+
+    if (viewMode === "day") {
+      const d = baseDate;
+      const dateIso = d.toISOString().slice(0, 10);
+      const dayShort = d.toLocaleDateString("tr-TR", { weekday: "short" });
+      const dayLong  = d.toLocaleDateString("tr-TR", { weekday: "long" });
+      const monthText = d.toLocaleDateString("tr-TR", { month: "long", year: "numeric" });
+      rows.push({
+        rowLabel: `${dayShort} ${d.toLocaleDateString("tr-TR",{day:"2-digit"})}`,
+        dateIso,
+        dayName: dayLong,
+        monthText,
+        values: makeHourlyValues(1)
+      });
+      caption = `${d.toLocaleDateString("tr-TR")} (${dayLong}) için saatlik tüketim`;
+      rangeInfo = d.toLocaleDateString("tr-TR");
+      return { rows, caption, rangeInfo };
+    }
+
+    let start, end;
+    if (viewMode === "week") {
+      start = new Date(baseDate);
+      start.setDate(baseDate.getDate() - 6);
+      end = baseDate;
+    } else {
+      start = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
+      end   = new Date(baseDate.getFullYear(), baseDate.getMonth() + 1, 0);
+    }
+
+    const msPerDay = 24 * 60 * 60 * 1000;
+    const days = Math.round((end - start) / msPerDay) + 1;
+
+    for (let i = 0; i < days; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      const dateIso = d.toISOString().slice(0,10);
+      const dayShort = d.toLocaleDateString("tr-TR", { weekday: "short" });
+      const dayLong  = d.toLocaleDateString("tr-TR", { weekday: "long" });
+      const monthText = d.toLocaleDateString("tr-TR", { month: "long", year: "numeric" });
+      const label = `${dayShort} ${d.toLocaleDateString("tr-TR",{day:"2-digit"})}`;
+      const factor = 0.7 + Math.random()*0.6;
+      rows.push({
+        rowLabel: label,
+        dateIso,
+        dayName: dayLong,
+        monthText,
+        values: makeHourlyValues(factor)
+      });
+    }
+
+    caption =
+      viewMode === "week"
+        ? "Seçili haftalık aralık için saatlik tüketim yoğunluğu"
+        : "Seçili ay için saatlik tüketim yoğunluğu";
+
+    rangeInfo = `${start.toLocaleDateString("tr-TR")} - ${end.toLocaleDateString("tr-TR")} (${days} gün)`;
+    return { rows, caption, rangeInfo };
+  }
+
+  function showHeatmapDetail(info) {
+    heatmapDetailTitleEl.textContent = `${info.dateLabel} • ${info.hourLabel}`;
+    heatmapDetailSubEl.textContent =
+      `${info.dayName} • ${info.monthText} • ${modeText()} görünümü`;
+
+    heatmapDetailBodyEl.innerHTML = `
+      <div class="modal-row">
+        <div class="heat-label">Tüketim</div>
+        <div class="heat-value">${info.kwh.toFixed(2)} kWh</div>
+      </div>
+      <div class="modal-row">
+        <div class="heat-label">Tahmini Güç</div>
+        <div class="heat-value">${info.kw.toFixed(2)} kW</div>
+      </div>
+      <div class="modal-row">
+        <div class="heat-label">Tahmini Akım</div>
+        <div class="heat-value">${info.current.toFixed(1)} A</div>
+      </div>
+    `;
+    heatmapDetailEl.classList.add("active");
+
+    modalSiteEl.textContent = state.selectedSite
+      ? `${state.selectedSite.code} – ${state.selectedSite.name}`
+      : "–";
+    modalDateEl.textContent = `${info.dateLabel} (${info.dayName})`;
+    modalHourEl.textContent = info.hourLabel;
+    modalModeEl.textContent = modeText();
+    modalMonthEl.textContent = info.monthText;
+    modalKwhEl.textContent = `${info.kwh.toFixed(2)} kWh`;
+    modalKwEl.textContent = `${info.kw.toFixed(2)} kW`;
+    modalCurrentEl.textContent = `${info.current.toFixed(1)} A`;
+
+    heatmapModalEl.classList.add("open");
+  }
+
+  function updateHeatmap() {
+    if (!state.selectedSite) {
+      heatmapGridEl.innerHTML = "<div class='no-data'>Önce sol menüden bir lokasyon seçin.</div>";
+      heatmapRangeInfoEl.textContent = "Görüntülenen aralık: –";
+      return;
+    }
+
+    const { rows, caption, rangeInfo } = generateHeatmapDemo(viewMode, dateInput.value);
+    heatmapCaptionEl.textContent = caption;
+    heatmapRangeInfoEl.textContent = "Görüntülenen aralık: " + rangeInfo;
+
+    if (!rows || rows.length === 0) {
+      heatmapGridEl.innerHTML = "<div class='no-data'>Bu periyot için veri yok.</div>";
+      return;
+    }
+
+    // 1) Saat başlıkları
+    renderHeatmapHours();
+
+    // 2) Gün etiketleri
+    renderHeatmapDays(rows.map(r => r.rowLabel));
+
+    // 3) Hücreler
+    let max = 0;
+    rows.forEach(r => r.values.forEach(v => { if (v > max) max = v; }));
+
+    heatmapGridEl.innerHTML = "";
+
+    const pf = 0.9;
+    const voltage = 400;
+
+    rows.forEach(row => {
+      row.values.forEach((val, h) => {
+        const cell = document.createElement("div");
+        cell.className = "heat-cell " + classifyHeatCell(val, max);
+
+        const inner = document.createElement("div");
+        inner.className = "heat-cell-value";
+        inner.textContent = viewMode === "day" ? val.toFixed(1) : "";
+        cell.appendChild(inner);
+
+        const d = new Date(row.dateIso);
+        const fullDate = d.toLocaleDateString("tr-TR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric"
+        });
+        const hourLabel = h.toString().padStart(2, "0") + ":00";
+
+        const kwh = val;
+        const kw = kwh;
+        const current = (kw * 1000) / (Math.sqrt(3) * voltage * pf);
+
+        cell.title = `${fullDate} ${hourLabel} → ${kwh.toFixed(2)} kWh`;
+
+        cell.addEventListener("click", () => {
+          showHeatmapDetail({
+            dateLabel: fullDate,
+            dayName: row.dayName,
+            monthText: row.monthText,
+            hourLabel,
+            kwh,
+            kw,
+            current
+          });
+        });
+
+        heatmapGridEl.appendChild(cell);
+      });
+    });
+  }
+
+  /* ================== EXPORT (DEMO) ================== */
   function exportReport(format) {
-    if (!state.selectedSite) return;
-    const date = dateInput.value;
-    const url = `${API_BASE}/sites/${state.selectedSite.id}/hourly/export?date=${date}&format=${format}`;
-    window.open(url, "_blank");
+    alert("DEMO modunda export çalışmıyor. Backend bağlandığında aktif olacak.");
   }
 
   btnExportExcel.addEventListener("click", () => exportReport("excel"));
   btnExportPdf.addEventListener("click", () => exportReport("pdf"));
 
-  loadSites();
+  dateInput.addEventListener("change", () => {
+    if (state.selectedSite) {
+      loadHourlyData();
+      loadDailySummary();
+      loadMonthSummary();
+      updateHeatmap();
+    }
+  });
+
+  viewModeSelect.addEventListener("change", () => {
+    viewMode = viewModeSelect.value;
+    if (state.selectedSite) {
+      loadDailySummary();
+      updateHeatmap();
+    }
+  });
+
+  // Periyodik realtime yenileme (DEMO)
   setInterval(() => {
     if (state.selectedSite) loadRealtime();
   }, 10000);
-</script>
 
-<script>
-  (function() {
+  /* ================== ROL BAZLI MENÜ ================== */
+  (function () {
     const role = localStorage.getItem("role");
+    // login zorunlu olsun istiyorsan aşağıyı açabilirsin:
+    // if (!role) { window.location.href = "login.html"; return; }
 
-    // Login yoksa login sayfasına at
-    if (!role) {
-      window.location.href = "login.html";
-      return;
+    if (role === "viewer") {
+      const a = document.getElementById("menu-alarms");
+      const k = document.getElementById("menu-komp");
+      if (a) a.style.display = "none";
+      if (k) k.style.display = "none";
     }
-
-    // Kullanıcı Yönetimi linki sadece admin görsün
-    const menuUsers = document.getElementById("menu-users");
-    if (menuUsers && role !== "admin") {
-      menuUsers.style.display = "none";
+    if (role === "operator") {
+      const u = document.getElementById("menu-users");
+      if (u) u.style.display = "none";
     }
   })();
 </script>
